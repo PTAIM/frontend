@@ -1,0 +1,118 @@
+import { Link, useNavigate } from "react-router";
+import type { Route } from "./+types/login";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { loginSchema } from "~/schemas/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { HeartPulse } from "lucide-react";
+import { Card, CardContent } from "~/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
+import { Input } from "~/components/ui/input";
+import { Button } from "~/components/ui/button";
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "Login - MediScan" },
+    { name: "description", content: "Telemedicina para Análise de Imagens" },
+  ];
+}
+
+export default function Login() {
+  const navigate = useNavigate();
+
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      identifier: "",
+      password: "",
+    },
+  });
+
+  async function loginSubmit(data: z.infer<typeof loginSchema>) {
+    console.log("Logando...");
+  }
+
+  return (
+    <section className="flex min-h-screen w-full items-center justify-center bg-gradient-to-b from-[#EFF6FF] to-[#FFFFFF] p-4">
+      <div className="flex flex-col items-center w-full">
+        {/* Logo e Título */}
+        <div className="mb-6 flex flex-col items-center justify-center space-y-2">
+          <div className="flex items-center space-x-2">
+            <HeartPulse className="h-8 w-8 text-primary" />
+            <span className="text-4xl font-bold">MediScan</span>
+          </div>
+          <p className="text-muted-foreground">Entre na sua conta</p>
+        </div>
+
+        {/* Card do Formulário */}
+        <Card className="w-full max-w-lg shadow-lg">
+          <CardContent className="pt-8">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(loginSubmit)}
+                className="space-y-10"
+              >
+                <FormField
+                  control={form.control}
+                  name="identifier"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email ou CPF</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="seu@email.com ou 123.456.789-00"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Senha</FormLabel>
+                      <FormControl>
+                        <Input type="password" placeholder="Senha" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button type="submit" className="w-full">
+                  Entrar
+                </Button>
+              </form>
+            </Form>
+
+            <div className="mt-6 text-center text-sm">
+              Não tem conta?{" "}
+              <Link
+                to="/cadastro"
+                className="font-medium text-primary hover:underline"
+              >
+                Cadastre-se
+              </Link>
+            </div>
+            <div className="mt-4 text-center text-sm">
+              <Link to="/" className="text-muted-foreground hover:underline">
+                Voltar para página inicial
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </section>
+  );
+}
