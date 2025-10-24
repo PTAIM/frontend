@@ -8,5 +8,9 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  return <section></section>;
+  return (
+    <section className="flex flex-col justify-center items-center my-8 mx-auto min-h-screen w-full">
+      <h1>Home Page</h1>
+    </section>
+  );
 }

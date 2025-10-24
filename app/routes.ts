@@ -14,15 +14,17 @@ export default [
   ]),
   layout("layouts/protected.tsx", [
     layout("layouts/navbar.tsx", [
-      // Home (dashboard -> medico, enviar exame -> staff, )
+      // Home (dashboard -> medico, dashboard -> staff, )
       route("home", "routes/home.tsx"),
       // Pacientes (index, criar e :id)
       ...prefix("pacientes", [
         index("routes/pacientes/index.tsx"),
         route("criar", "routes/pacientes/new.tsx"),
       ]),
-      // Exames (solicitacoes/index, solicitacoes/criar solicitacoes/:id, )
+      // Exames (solicitacoes/index, solicitacoes/criar solicitacoes/:id )
       ...prefix("exames", [
+        index("routes/exames/index.tsx"),
+        route("upload", "routes/exames/upload.tsx"),
         ...prefix("solicitacoes", [
           index("routes/exames/solicitacoes/index.tsx"),
           route(":id", "routes/exames/solicitacoes/details.tsx"),
