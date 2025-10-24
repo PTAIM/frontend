@@ -9,7 +9,7 @@ export default function UnprotectedLayout() {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      navigate("/", { replace: true });
+      navigate("/home", { replace: true });
     }
   }, [isAuthenticated, isLoading, navigate]);
 
