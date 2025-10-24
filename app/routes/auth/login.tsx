@@ -16,6 +16,9 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
+import useAuth from "~/hooks/useAuth";
+import type { LoginCredentials } from "~/types/auth";
+import { toast } from "sonner";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -26,6 +29,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -36,7 +40,13 @@ export default function Login() {
   });
 
   async function loginSubmit(data: z.infer<typeof loginSchema>) {
-    console.log("Logando...");
+    try {
+      await login(data as LoginCredentials);
+      navigate("/home", { replace: true });
+      toast.success("Login efetuado com sucesso");
+    } catch (error) {
+      toast.error("Falha no login. Email ou senha incorretos!");
+    }
   }
 
   return (
@@ -44,10 +54,10 @@ export default function Login() {
       <div className="flex flex-col items-center w-full">
         {/* Logo e Título */}
         <div className="mb-6 flex flex-col items-center justify-center space-y-2">
-          <div className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2">
             <HeartPulse className="h-8 w-8 text-primary" />
             <span className="text-4xl font-bold">MediScan</span>
-          </div>
+          </Link>
           <p className="text-muted-foreground">Entre na sua conta</p>
         </div>
 
@@ -64,12 +74,9 @@ export default function Login() {
                   name="identifier"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email ou CPF</FormLabel>
+                      <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="seu@email.com ou 123.456.789-00"
-                          {...field}
-                        />
+                        <Input placeholder="seu@email.com" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

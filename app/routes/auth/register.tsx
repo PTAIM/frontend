@@ -23,7 +23,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { UserRegisterType } from "~/types/auth";
+import { UserRegisterType, type RegisterData } from "~/types/auth";
+import { cpfMask, phoneMask } from "~/lib/utils";
+import { authService } from "~/services/AuthService";
+import { toast } from "sonner";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -53,7 +56,15 @@ export default function Register() {
   const watchedTipo = form.watch("tipo");
 
   async function registerSubmit(data: z.infer<typeof registerSchema>) {
-    console.log("Logando...");
+    try {
+      await authService.register(data as RegisterData);
+      navigate("/login", { replace: true });
+      toast.success("Cadastro realizado com sucesso! Faça Login");
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      }
+    }
   }
 
   return (
@@ -61,10 +72,10 @@ export default function Register() {
       <div className="flex flex-col items-center w-full">
         {/* Logo e Título */}
         <div className="mb-6 flex flex-col items-center justify-center space-y-2">
-          <div className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2">
             <HeartPulse className="h-8 w-8 text-primary" />
             <span className="text-4xl font-bold">MediScan</span>
-          </div>
+          </Link>
           <p className="text-muted-foreground">Crie sua conta</p>
         </div>
 
@@ -111,11 +122,18 @@ export default function Register() {
                 <FormField
                   control={form.control}
                   name="telefone"
-                  render={({ field }) => (
+                  render={({ field: { onChange, ...props } }) => (
                     <FormItem>
                       <FormLabel>Telefone</FormLabel>
                       <FormControl>
-                        <Input placeholder="(99) 99999-9999" {...field} />
+                        <Input
+                          placeholder="(99) 99999-9999"
+                          onChange={(e) => {
+                            const masked = phoneMask(e.target.value);
+                            onChange(masked);
+                          }}
+                          {...props}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -125,11 +143,18 @@ export default function Register() {
                 <FormField
                   control={form.control}
                   name="cpf"
-                  render={({ field }) => (
+                  render={({ field: { onChange, ...props } }) => (
                     <FormItem>
                       <FormLabel>CPF</FormLabel>
                       <FormControl>
-                        <Input placeholder="123.456.789-00" {...field} />
+                        <Input
+                          placeholder="123.456.789-00"
+                          onChange={(e) => {
+                            const masked = cpfMask(e.target.value);
+                            onChange(masked);
+                          }}
+                          {...props}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -143,11 +168,7 @@ export default function Register() {
                     <FormItem>
                       <FormLabel>Senha</FormLabel>
                       <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="••••••••"
-                          {...field}
-                        />
+                        <Input type="password" placeholder="Senha" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -163,7 +184,7 @@ export default function Register() {
                       <FormControl>
                         <Input
                           type="password"
-                          placeholder="••••••••"
+                          placeholder="Confirmar Senha"
                           {...field}
                         />
                       </FormControl>
@@ -188,8 +209,8 @@ export default function Register() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Médico">Médico</SelectItem>
-                          <SelectItem value="Funcionário">
+                          <SelectItem value="medico">Médico</SelectItem>
+                          <SelectItem value="funcionario">
                             Funcionário (Clínica)
                           </SelectItem>
                         </SelectContent>

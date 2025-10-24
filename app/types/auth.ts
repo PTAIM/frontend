@@ -1,6 +1,24 @@
+export enum UserRegisterType {
+  medico = "medico",
+  funcionario = "funcionario",
+}
+
 export type LoginCredentials = {
   identifier: string;
   password: string;
+};
+
+export type CurrentUser = {
+  id: number;
+  nome: string;
+  email: string;
+  tipo: UserRegisterType;
+};
+
+export type LoginResponse = {
+  access_token: string;
+  token_type: string;
+  usuario: CurrentUser;
 };
 
 export type RegisterData = {
@@ -12,15 +30,3 @@ export type RegisterData = {
   crm?: string;
   nomeClinica?: string;
 };
-
-export type User = {
-  name: string;
-  email: string;
-  cpf: string;
-  tipo: UserRegisterType;
-};
-
-export enum UserRegisterType {
-  medico = "Médico",
-  funcionario = "Funcionário",
-}

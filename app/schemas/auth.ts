@@ -36,8 +36,12 @@ export const registerSchema = z
     email: z.string().email({ message: "Por favor, insira um email válido." }),
     telefone: z
       .string()
-      .min(10, { message: "Telefone deve ter pelo menos 10 dígitos." }),
-    cpf: z.string().min(11, { message: "CPF deve ter 11 dígitos." }),
+      .min(10, { message: "Telefone deve ter pelo menos 10 dígitos." })
+      .transform((v) => v.replace(/[^\d]/g, "")),
+    cpf: z
+      .string()
+      .min(11, { message: "CPF deve ter 11 dígitos." })
+      .transform((v) => v.replace(/[^\d]/g, "")),
     password: z
       .string()
       .min(8, { message: "A senha deve ter pelo menos 8 caracteres." }),
