@@ -3,6 +3,8 @@ export enum UserRegisterType {
   funcionario = "funcionario",
 }
 
+export type UserType = "medico" | "paciente" | "funcionario";
+
 export type LoginCredentials = {
   identifier: string;
   password: string;
@@ -12,7 +14,7 @@ export type CurrentUser = {
   id: number;
   nome: string;
   email: string;
-  tipo: UserRegisterType;
+  tipo: UserType;
 };
 
 export type LoginResponse = {
