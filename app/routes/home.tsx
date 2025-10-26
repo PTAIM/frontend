@@ -1,13 +1,16 @@
 import type { Route } from "./+types/home";
-import { Welcome } from "../welcome/welcome";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "MediScan" },
+    { name: "description", content: "Telemedicina para Análise de Imagens" },
   ];
 }
 
 export default function Home() {
-  return <Welcome />;
+  return (
+    <section className="flex flex-col justify-center items-center my-8 mx-auto min-h-screen w-full">
+      <h1>Home Page</h1>
+    </section>
+  );
 }
