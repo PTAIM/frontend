@@ -25,7 +25,7 @@ import {
 } from "~/components/ui/select";
 import { UserRegisterType, type RegisterData } from "~/types/auth";
 import { cpfMask, phoneMask } from "~/lib/utils";
-import { authService } from "~/services/AuthService";
+import { authService } from "~/services/auth";
 import { toast } from "sonner";
 
 export function meta({}: Route.MetaArgs) {
