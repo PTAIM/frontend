@@ -64,7 +64,7 @@ export default function FuncionarioHomePage() {
 
   useEffect(() => {
     if (isError && error) {
-      toast.error("Erro ao carregar dados do dashboard.", {
+      toast.error("Erro ao carregar dados dos exames.", {
         description:
           (error as any)?.response?.data?.message ||
           error.message ||

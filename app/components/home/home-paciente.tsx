@@ -67,7 +67,7 @@ export default function PacienteHomePage() {
 
   useEffect(() => {
     if (isError && error) {
-      toast.error("Erro ao carregar dados do dashboard.", {
+      toast.error("Erro ao carregar dados de solicitações.", {
         description:
           (error as any)?.response?.data?.message ||
           error.message ||
