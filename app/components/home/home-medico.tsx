@@ -48,9 +48,6 @@ import {
   mockRecentExams,
 } from "~/lib/mock";
 
-/**
- * Componente: Gráficos em Carrossel (Atualizado com isLoading)
- */
 function ChartsSection({
   solicitacoes,
   laudos,
@@ -214,20 +211,6 @@ function QuickActions() {
 export type MedicoDashboardData = DashboardData & {
   exames_recentes: ExameData[];
 };
-
-/*
-const defaultEmptyData: MedicoDashboardData = {
-  resumo: {
-    total_solicitacoes: 0,
-    exames_recebidos: 0,
-    laudos_emitidos: 0,
-    total_pacientes: 0,
-  },
-  solicitacoes_por_mes: [],
-  laudos_por_mes: [],
-  exames_recentes: [],
-};
-*/
 
 const defaultEmptyData: MedicoDashboardData = {
   resumo: mock_resumo,
