@@ -24,6 +24,10 @@ api.interceptors.response.use(
         window.location.href = "/login";
       }
     }
+    // Intercepção para requisições com acesso proibido
+    else if (error.response && error.response.status === 403) {
+      window.location.href = "/home";
+    }
     return Promise.reject(error);
   },
 );

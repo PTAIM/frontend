@@ -1,11 +1,14 @@
+/* [MUDANÇA] Import da nova fonte "Source Sans 3" */
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+3:opsz,wght@6..12,400;6..12,700;6..12,800&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
+  /* [MUDANÇA] Fonte atualizada para Source Sans 3 */
   --font-sans:
-    "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Source Sans 3", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
@@ -60,73 +63,112 @@ body {
   --color-theme2-foreground: oklch(0.6806 0.1423 75.83);
 }
 
+/* Nova Paleta de Cores:
+  - Fundo: Branco
+  - Primário: Azul Escuro (para botões e links principais)
+  - Secundário: Azul Pastel (para fundos sutis, hover)
+  - Texto: Um tom de azul-acinzentado escuro para legibilidade
+*/
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
+  --background: oklch(1 0 0); /* Branco */
+  --foreground: oklch(0.2 0.04 260); /* Texto - Azul-acinzentado escuro */
+  --card: oklch(1 0 0); /* Cards brancos */
+  --card-foreground: oklch(0.2 0.04 260);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
+  --popover-foreground: oklch(0.2 0.04 260);
+  --primary: oklch(0.5 0.15 260); /* Azul mais escuro (Primário) */
+  --primary-foreground: oklch(
+    0.98 0.01 260
+  ); /* Texto claro para botões primários */
+  --secondary: oklch(0.95 0.05 250); /* Azul Pastel (Secundário) */
+  --secondary-foreground: oklch(
+    0.3 0.1 260
+  ); /* Texto escuro para botões secundários */
+
+  /* [AJUSTE] Tons de amarelo removidos de 'muted' e 'accent' e substituídos por tons de azul-acinzentado */
+  --muted: oklch(0.96 0.01 250); /* Azul-acinzentado bem claro (Muted) */
+  --muted-foreground: oklch(0.45 0.03 260); /* Texto azul-acinzentado médio */
+  --accent: oklch(0.94 0.02 250); /* Azul-acinzentado claro (Accent) */
+  --accent-foreground: oklch(0.3 0.05 260); /* Texto azul-acinzentado escuro */
+
+  --destructive: oklch(
+    0.577 0.245 27.325
+  ); /* Vermelho para destrutivo (Mantido) */
+
+  /* [AJUSTE] Cores de borda e input revertidas para o original (mais escuras) */
   --border: oklch(0.929 0.013 255.508);
   --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+
+  --ring: oklch(0.7 0.1 260); /* Anel de foco (azul médio) */
+
+  /* [MUDANÇA] Cores dos gráficos em tons mais pasteis (Light Mode) */
+  --chart-1: oklch(0.7 0.1 260); /* Azul Pastel */
+  --chart-2: oklch(0.95 0.08 100); /* Amarelo Pastel */
+  --chart-3: oklch(0.75 0.09 180); /* Verde-água Pastel */
+  --chart-4: oklch(0.75 0.1 300); /* Roxo Pastel */
+  --chart-5: oklch(0.8 0.1 70); /* Laranja Pastel */
+
+  /* Cores da Sidebar (Light Mode) */
+  --sidebar: oklch(0.98 0.02 250); /* Fundo azul pastel muito claro */
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: oklch(0.95 0.05 250); /* Hover (Azul Pastel) */
+  --sidebar-accent-foreground: var(--primary);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
 }
 
+/* Dark Mode com a nova paleta */
 .dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
+  --background: oklch(0.15 0.03 260); /* Fundo azul muito escuro */
+  --foreground: oklch(0.98 0.01 260); /* Texto claro */
+  --card: oklch(0.2 0.04 260); /* Card azul escuro */
+  --card-foreground: oklch(0.98 0.01 260);
+  --popover: oklch(0.2 0.04 260);
+  --popover-foreground: oklch(0.98 0.01 260);
+  --primary: oklch(0.6 0.15 260); /* Azul primário mais claro para dark mode */
+  --primary-foreground: oklch(
+    0.1 0.03 260
+  ); /* Texto escuro para botão primário */
+  --secondary: oklch(0.25 0.05 250); /* Azul pastel escuro */
+  --secondary-foreground: oklch(
+    0.95 0.03 250
+  ); /* Texto claro para secundário */
+
+  /* [AJUSTE] Tons de amarelo removidos de 'muted' e 'accent' e substituídos por tons de azul-acinzentado */
+  --muted: oklch(0.25 0.02 250); /* Azul-acinzentado escuro (Muted) */
+  --muted-foreground: oklch(0.7 0.02 250); /* Texto azul-acinzentado claro */
+  --accent: oklch(0.3 0.03 250); /* Azul-acinzentado escuro (Accent) */
+  --accent-foreground: oklch(
+    0.9 0.01 250
+  ); /* Texto azul-acinzentado bem claro */
+
+  --destructive: oklch(0.704 0.191 22.216); /* Vermelho mais claro (Mantido) */
+
+  /* [AJUSTE] Cores de borda e input revertidas para o original */
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+
+  --ring: oklch(0.7 0.15 260); /* Anel de foco azul claro */
+
+  /* [MUDANÇA] Cores dos gráficos menos saturadas (Dark Mode) */
+  --chart-1: oklch(0.6 0.1 260); /* Azul (menos saturado) */
+  --chart-2: oklch(0.8 0.08 100); /* Amarelo (menos saturado) */
+  --chart-3: oklch(0.7 0.1 180); /* Verde-água (menos saturado) */
+  --chart-4: oklch(0.7 0.1 300); /* Roxo (menos saturado) */
+  --chart-5: oklch(0.8 0.1 70); /* Laranja (menos saturado) */
+
+  /* Cores da Sidebar (Dark Mode) */
+  --sidebar: oklch(0.18 0.03 260); /* Fundo um pouco mais escuro que o card */
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: oklch(0.25 0.05 250); /* Hover (Azul pastel escuro) */
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
 }
 
 @layer base {
@@ -135,5 +177,7 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    /* [AJUSTE] Aumenta ligeiramente o tamanho da fonte base para melhor legibilidade */
+    font-size: 102.5%;
   }
 }
