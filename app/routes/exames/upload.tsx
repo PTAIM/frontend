@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Upload, Info, Activity, Calendar as CalendarIcon, X } from 'lucide-react';
+import { Upload, Info, Calendar as CalendarIcon, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { z } from 'zod';
@@ -13,6 +13,14 @@ import { Calendar } from '~/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
 import { uploadExamSchema } from '~/schemas/exame';
 import { toast } from 'sonner';
+import type { Route } from './+types/upload';
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "Upload de Exame - MediScan" },
+    { name: "description", content: "Telemedicina para Análise de Imagens" },
+  ];
+}
 
 type ExamFormData = z.infer<typeof uploadExamSchema>;
 
@@ -110,22 +118,7 @@ export default function ExamUpload() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-50">
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-blue-500 rounded-xl p-2">
-              <Activity className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-semibold">Upload de Exames</h1>
-              <p className="text-sm text-gray-500">Clínica São Lucas</p>
-            </div>
-          </div>
-          <Button variant="ghost">Sair</Button>
-        </div>
-      </header>
-
+    <div className="min-h-screen">
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Card className="shadow-lg">
           <CardContent className="pt-6">
