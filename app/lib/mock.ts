@@ -1,5 +1,6 @@
 import type { ChartData, ResumoData } from "~/types/dashboard";
 import type { ExameData } from "~/types/exame";
+import type { PacientesData } from "~/types/paciente";
 import type { SolicitacaoData } from "~/types/solicitacao";
 
 export const mockSolicitacoes: SolicitacaoData[] = [
@@ -94,3 +95,44 @@ export const mock_laudos_por_mes: ChartData[] = [
   { mes: "Set", total: 51 },
   { mes: "Out", total: 35 },
 ];
+
+export const mockPacientesData: PacientesData = {
+  pacientes: [
+    {
+      id: 1,
+      nome: "Ana Beatriz Silva",
+      email: "ana.silva@example.com",
+      cpf: "111.222.333-44",
+      data_nascimento: "1990-05-15",
+      telefone: "(11) 91234-5678",
+    },
+    {
+      id: 2,
+      nome: "Bruno Costa",
+      email: "bruno.costa@email.com",
+      cpf: "222.333.444-55",
+      data_nascimento: "1985-11-20",
+      telefone: "(21) 98765-4321",
+    },
+    {
+      id: 3,
+      nome: "Carla Dias",
+      email: "carla.d@provider.net",
+      cpf: "333.444.555-66",
+      data_nascimento: "2001-02-10",
+      telefone: "(31) 99887-7665",
+    },
+    {
+      id: 4,
+      nome: "Daniel Moreira",
+      email: "daniel.m@example.com",
+      cpf: "444.555.666-77",
+      data_nascimento: "1995-09-30",
+      telefone: "(41) 98877-6655",
+    },
+  ],
+
+  total: 28,
+  page: 1,
+  limit: 4,
+};
