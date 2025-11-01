@@ -11,17 +11,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/com
 import { Alert, AlertDescription } from '~/components/ui/alert';
 import { Calendar } from '~/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
+import { uploadExamSchema } from '~/schemas/exame';
 import { toast } from 'sonner';
 
-const examSchema = z.object({
-  codigo_solicitacao: z.string().min(1, 'Código do exame é obrigatório'),
-  data_realizacao: z.date({ error: 'Data de realização é obrigatória' }),
-  nome_laboratorio: z.string().min(1, 'Nome do laboratório é obrigatório'),
-  observacoes: z.string().optional(),
-  arquivos: z.array(z.instanceof(File)).min(1, 'Pelo menos um arquivo é obrigatório'),
-});
-
-type ExamFormData = z.infer<typeof examSchema>;
+type ExamFormData = z.infer<typeof uploadExamSchema>;
 
 export default function ExamUpload() {
   const [examCode, setExamCode] = useState<string>('');
@@ -77,7 +70,7 @@ export default function ExamUpload() {
         arquivos: files,
       };
 
-      const validatedData = examSchema.parse(formData);
+      const validatedData = uploadExamSchema.parse(formData);
 
       const submitFormData = new FormData();
       submitFormData.append('codigo_solicitacao', validatedData.codigo_solicitacao);
