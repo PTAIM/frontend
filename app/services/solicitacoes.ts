@@ -12,7 +12,7 @@ import type {
 class SolicitacaoService {
   async create(data: CriarSolicitacao) {
     try {
-      const response = await api.post<Message>("/exames/solicitacoes", data);
+      const response = await api.post<Message>("/solicitacoes", data);
       return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));
@@ -22,7 +22,7 @@ class SolicitacaoService {
   async update(solicitacaoId: number, data: AtualizarSolicitacao) {
     try {
       const response = await api.put<SolicitacaoData>(
-        `/exames/solicitacoes/${solicitacaoId}`,
+        `/solicitacoes/${solicitacaoId}`,
         data,
       );
       return response.data;
@@ -33,7 +33,7 @@ class SolicitacaoService {
 
   async readAll(params: SolicitacoesParams) {
     try {
-      const response = await api.get<SolicitacoesData>("/exames/solicitacoes", {
+      const response = await api.get<SolicitacoesData>("/solicitacoes", {
         params: params,
       });
       return response.data;
@@ -45,7 +45,7 @@ class SolicitacaoService {
   async read(solicitacaoId: number) {
     try {
       const response = await api.get<SolicitacaoData>(
-        `/exames/solicitacoes/${solicitacaoId}`,
+        `/solicitacoes/${solicitacaoId}`,
       );
       return response.data;
     } catch (error) {
@@ -56,7 +56,7 @@ class SolicitacaoService {
   async delete(solicitacaoId: number) {
     try {
       const response = await api.delete<Message>(
-        `/exames/solicitacoes/${solicitacaoId}`,
+        `/solicitacoes/${solicitacaoId}`,
       );
       return response.data;
     } catch (error) {
