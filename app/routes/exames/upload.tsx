@@ -16,6 +16,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover
 import { toast } from 'sonner';
 import type { Route } from './+types/upload';
 import { uploadExamSchema } from '~/schemas/exame';
+import { exameService } from '~/services/exames';
+import type { CriarExame } from '~/types/exame';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -60,19 +62,23 @@ export default function ExamUpload() {
   };
 
   const onSubmit = async (data: ExamFormData) => {
-    const formData = new FormData();
-    formData.append('codigo_solicitacao', data.codigo_solicitacao);
-    formData.append('data_realizacao', data.data_realizacao.toISOString());
-    formData.append('nome_laboratorio', data.nome_laboratorio);
-    
-    if (data.observacoes) {
-      formData.append('observacoes', data.observacoes);
-    }
-    
-    formData.append('arquivo', data.arquivo);
+    const formData: CriarExame = {
+      codigo_solicitacao: data.codigo_solicitacao,
+      data_realizacao: data.data_realizacao,
+      nome_laboratorio: data.nome_laboratorio,
+      observacoes: data.observacoes,
+      arquivo: data.arquivo,
+    };
 
-    console.log('Enviando dados:', data);
-    toast.success(`Exame ${data.codigo_solicitacao} enviado com sucesso!`);
+    exameService.create(formData)
+      .then(() => {
+      toast.success(`Exame ${data.codigo_solicitacao} enviado com sucesso!`);
+    })
+      .catch((error: Error) => {
+      toast.error('Erro ao enviar exame.', {
+        description: error.message,
+      });
+    });
     
     reset();
     setFile(null);
