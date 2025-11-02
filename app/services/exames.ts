@@ -20,7 +20,7 @@ class ExameService {
 
   async readAll(params: ExamesParams) {
     try {
-      const response = await api.get<ExamesData>("/exames/resultados", {
+      const response = await api.get<ExamesData>("/exames", {
         params: params,
       });
       return response.data;
