@@ -92,8 +92,7 @@ const Header = () => (
   >
     <div className="container mx-auto px-4 flex h-14 items-center justify-between flex-wrap">
       <Link to="/" className="flex items-center space-x-2">
-        <HeartPulse className="h-6 w-6 text-primary" />
-        <span className="font-bold text-xl">MediScan</span>
+        <motion.img src="name_logo2.png" className="w-48 h-10 object-cover" />
       </Link>
       <nav className="hidden items-center space-x-6 font-medium md:flex gap-6">
         <a
@@ -151,7 +150,7 @@ const Hero = () => (
         </motion.span>
         <motion.h1
           variants={fadeInUp}
-          className="text-4xl font-bold tracking-tighter text-blue-500 md:text-5xl lg:text-6xl"
+          className="text-4xl font-bold tracking-tighter text-[#98ddff] md:text-5xl lg:text-6xl"
         >
           Análise de Imagens
         </motion.h1>
