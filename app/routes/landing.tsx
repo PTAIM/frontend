@@ -92,8 +92,7 @@ const Header = () => (
   >
     <div className="container mx-auto px-4 flex h-14 items-center justify-between flex-wrap">
       <Link to="/" className="flex items-center space-x-2">
-        <HeartPulse className="h-6 w-6 text-primary" />
-        <span className="font-bold text-xl">MediScan</span>
+        <motion.img src="name_logo2.png" className="w-48 h-10 object-cover" />
       </Link>
       <nav className="hidden items-center space-x-6 font-medium md:flex gap-6">
         <a
@@ -151,7 +150,7 @@ const Hero = () => (
         </motion.span>
         <motion.h1
           variants={fadeInUp}
-          className="text-4xl font-bold tracking-tighter text-blue-500 md:text-5xl lg:text-6xl"
+          className="text-4xl font-bold tracking-tighter text-[#98ddff] md:text-5xl lg:text-6xl"
         >
           Análise de Imagens
         </motion.h1>
@@ -231,8 +230,8 @@ const HowItWorks = () => (
           </div>
           <h3 className="text-xl font-bold">Solicite Exames</h3>
           <p className="text-muted-foreground">
-            O médico solicita o exame e a plataforma é notificada, por email com
-            todas as informações necessárias.
+            O médico solicita o exame e o paciente tem acesso a todas as
+            informações necessárias.
           </p>
         </motion.div>
         {/* Item 2: Clínicas Enviam */}
@@ -245,8 +244,8 @@ const HowItWorks = () => (
           </div>
           <h3 className="text-xl font-bold">Clínicas Enviam</h3>
           <p className="text-muted-foreground">
-            As clínicas parceiras realizam o exame e fazem upload do arquivo
-            DICOM e laudo em texto.
+            As clínicas parceiras realizam o exame e fazem upload do arquivo de
+            resultado.
           </p>
         </motion.div>
         {/* Item 3: Crie Laudos */}
@@ -259,8 +258,8 @@ const HowItWorks = () => (
           </div>
           <h3 className="text-xl font-bold">Crie Laudos</h3>
           <p className="text-muted-foreground">
-            Especialistas cadastrados criam os laudos detalhados que ficam
-            disponíveis para o paciente.
+            O médico, então, cria os laudos detalhados que ficam disponíveis
+            para o paciente.
           </p>
         </motion.div>
       </motion.div>
