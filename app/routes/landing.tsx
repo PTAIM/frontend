@@ -230,8 +230,8 @@ const HowItWorks = () => (
           </div>
           <h3 className="text-xl font-bold">Solicite Exames</h3>
           <p className="text-muted-foreground">
-            O médico solicita o exame e a plataforma é notificada, por email com
-            todas as informações necessárias.
+            O médico solicita o exame e o paciente tem acesso a todas as
+            informações necessárias.
           </p>
         </motion.div>
         {/* Item 2: Clínicas Enviam */}
@@ -244,8 +244,8 @@ const HowItWorks = () => (
           </div>
           <h3 className="text-xl font-bold">Clínicas Enviam</h3>
           <p className="text-muted-foreground">
-            As clínicas parceiras realizam o exame e fazem upload do arquivo
-            DICOM e laudo em texto.
+            As clínicas parceiras realizam o exame e fazem upload do arquivo de
+            resultado.
           </p>
         </motion.div>
         {/* Item 3: Crie Laudos */}
@@ -258,8 +258,8 @@ const HowItWorks = () => (
           </div>
           <h3 className="text-xl font-bold">Crie Laudos</h3>
           <p className="text-muted-foreground">
-            Especialistas cadastrados criam os laudos detalhados que ficam
-            disponíveis para o paciente.
+            O médico, então, cria os laudos detalhados que ficam disponíveis
+            para o paciente.
           </p>
         </motion.div>
       </motion.div>
