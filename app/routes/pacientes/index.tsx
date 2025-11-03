@@ -25,6 +25,7 @@ import type { Route } from "./+types";
 import { pacienteService } from "~/services/pacientes";
 import { PaginatedTable } from "~/components/paginated-table";
 import { useDebounce } from "~/hooks/debounce";
+import { cpfMask, phoneMask } from "~/lib/utils";
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const url = new URL(request.url);
@@ -35,7 +36,7 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   try {
     const pacientes = await pacienteService.readAll({
       page: page,
-      limit: limit,
+      perPage: limit,
       search: search,
     });
     return { data: pacientes, search, page, limit, error: null };
@@ -169,8 +170,8 @@ export default function PacientesIndexPage({
                 <TableRow key={paciente.id}>
                   <TableCell className="font-medium">{paciente.nome}</TableCell>
                   <TableCell>{paciente.email}</TableCell>
-                  <TableCell>{paciente.cpf}</TableCell>
-                  <TableCell>{paciente.telefone}</TableCell>
+                  <TableCell>{cpfMask(paciente.cpf)}</TableCell>
+                  <TableCell>{phoneMask(paciente.telefone)}</TableCell>
                   <TableCell>
                     {format(new Date(paciente.data_nascimento), "dd/MM/yyyy")}
                   </TableCell>
