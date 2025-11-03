@@ -1,7 +1,8 @@
-type SolicitacaoStatus =
-  | "AGUARDANDO_RESULTADO"
-  | "RESULTADO_ENVIADO"
-  | "CANCELADO";
+export enum SolicitacaoStatus {
+  aguardando = "AGUARDANDO_RESULTADO",
+  enviado = "RESULTADO_ENVIADO",
+  cancelado = "CANCELADO",
+}
 
 export type CriarSolicitacao = {
   paciente_id: number;

@@ -8,7 +8,7 @@ import {
 } from "react-router";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Eye, PlusCircle, Search, Terminal, Trash2 } from "lucide-react";
+import { Eye, PlusCircle, Search, Table, Terminal, Trash2 } from "lucide-react";
 
 import { Card, CardContent, CardHeader } from "../../../components/ui/card";
 import {
@@ -30,6 +30,9 @@ import { solicitacaoService } from "~/services/solicitacoes";
 import { PaginatedTable } from "~/components/paginated-table";
 import { useDebounce } from "~/hooks/debounce";
 import { usePermissions } from "~/hooks/use-permissions";
+import useAuth from "~/hooks/useAuth";
+import { Badge } from "~/components/ui/badge";
+import { SolicitacaoStatus } from "~/types/solicitacao";
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const url = new URL(request.url);
@@ -167,7 +170,11 @@ export default function SolicitacoesIndexPage({
                     <TableHead>Paciente</TableHead>
                     <TableHead>Exame</TableHead>
                     <TableHead>Data</TableHead>
-                    <TableHead>Código</TableHead>
+                    {can("create", "solicitacoes") ? (
+                      <TableHead>Status</TableHead>
+                    ) : (
+                      <TableHead>Código</TableHead>
+                    )}
                     <TableHead className="w-[80px]">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -179,6 +186,7 @@ export default function SolicitacoesIndexPage({
                       solicitacao.paciente_nome ??
                       "-"}
                   </TableCell>
+
                   <TableCell>{solicitacao.nome_exame}</TableCell>
                   <TableCell>
                     {format(
@@ -186,7 +194,22 @@ export default function SolicitacoesIndexPage({
                       "dd/MM/yyyy",
                     )}
                   </TableCell>
-                  <TableCell>{solicitacao.codigo_solicitacao}</TableCell>
+                  {can("create", "solicitacoes") ? (
+                    <TableCell>
+                      <Badge
+                        variant={"secondary"}
+                        className={
+                          solicitacao.status === SolicitacaoStatus.enviado
+                            ? "bg-green-300 hover:bg-green-300/80"
+                            : "bg-[#FEF9C3] hover:bg-[#FEF9C3]/80"
+                        }
+                      >
+                        {solicitacao.status.replace("_", " ").toLowerCase()}
+                      </Badge>
+                    </TableCell>
+                  ) : (
+                    <TableCell>{solicitacao.codigo_solicitacao}</TableCell>
+                  )}
                   <TableCell>
                     <div className="flex flex-row items-center justify-center mx-auto">
                       {can("read", "solicitacoes") && (
@@ -218,4 +241,3 @@ export default function SolicitacoesIndexPage({
     </section>
   );
 }
-

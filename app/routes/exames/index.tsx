@@ -186,11 +186,11 @@ export default function ExamesIndexPage({ loaderData }: Route.ComponentProps) {
                   </TableCell>
                   <TableCell>
                     <Badge
-                      variant={exame.tem_laudo ? "default" : "secondary"}
+                      variant={"secondary"}
                       className={
                         exame.tem_laudo
-                          ? "bg-green-500 hover:bg-green-500/80"
-                          : "bg-yellow-500 hover:bg-yellow-500/80"
+                          ? "bg-green-300 hover:bg-green-300/80"
+                          : "bg-[#FEF9C3] hover:bg-[#FEF9C3]/80"
                       }
                     >
                       {exame.tem_laudo ? "Laudado" : "Pendente"}
@@ -227,4 +227,3 @@ export default function ExamesIndexPage({ loaderData }: Route.ComponentProps) {
     </section>
   );
 }
-
