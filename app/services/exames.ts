@@ -11,7 +11,7 @@ import type {
 class ExameService {
   async create(data: CriarExame) {
     try {
-      const response = await api.post<Message>("/exames/resultados", data);
+      const response = await api.post<Message>("/resultados", data);
       return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));
