@@ -28,10 +28,10 @@ class PacienteService {
     }
   }
 
-  async readAll(params?: { q?: string; page?: number; perPage?: number }) {
+  async readAll(params?: { search?: string; page?: number; perPage?: number }) {
     try {
-      const response = await api.get('/pacientes', { params });
-      return response.data; // pode ser array ou paginado, trataremos no caller
+      const response = await api.get<PacientesData>("/pacientes", { params });
+      return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }

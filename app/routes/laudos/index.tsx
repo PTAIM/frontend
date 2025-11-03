@@ -8,7 +8,7 @@ import {
 } from "react-router";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Eye, PlusCircle, Search, Terminal } from "lucide-react";
+import { Eye, PlusCircle, Search, Terminal, Trash2 } from "lucide-react";
 
 import { Card, CardContent, CardHeader } from "../../components/ui/card";
 import {
@@ -26,6 +26,7 @@ import { PaginatedTable } from "~/components/paginated-table";
 import { useDebounce } from "~/hooks/debounce";
 import { laudoService } from "~/services/laudos";
 import type { LaudosParams } from "~/types/laudo";
+import { usePermissions } from "~/hooks/use-permissions";
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const url = new URL(request.url);
@@ -33,7 +34,6 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const page = Number(url.searchParams.get("page")) || 1;
   const limit = Number(url.searchParams.get("limit")) || 10;
 
-  // Inspirado no exemplo: cria um objeto de parâmetros tipado
   const params: LaudosParams = {
     page,
     limit,
@@ -42,14 +42,12 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
 
   try {
     const laudos = await laudoService.readAll(params);
-    // A resposta do serviço (laudos) já deve ter o formato { laudos: [], total: 0 }
     return { data: laudos, search, page, limit, error: null };
   } catch (error) {
     const errorMessage = (error as Error).message;
     toast.error("Erro ao buscar laudos.", {
       description: errorMessage,
     });
-    // Retorna uma estrutura segura e vazia em caso de erro
     return {
       data: { laudos: [], total: 0 },
       search,
@@ -64,8 +62,8 @@ export default function LaudosIndexPage({ loaderData }: Route.ComponentProps) {
   const navigation = useNavigation();
   const submit = useSubmit();
   const [searchParams] = useSearchParams();
-  
-  // Fallback para garantir que 'data' nunca seja nulo, evitando o erro
+  const { can } = usePermissions();
+
   const { data, search, page, limit, error } = loaderData || {
     data: { laudos: [], total: 0 },
     search: "",
@@ -134,7 +132,8 @@ export default function LaudosIndexPage({ loaderData }: Route.ComponentProps) {
                 />
               </Form>
               <span className="text-sm text-muted-foreground w-full sm:w-auto text-center sm:text-right">
-                {totalResults} {totalResults === 1 ? "laudo" : "laudos"} encontrados
+                {totalResults} {totalResults === 1 ? "laudo" : "laudos"}{" "}
+                encontrados
               </span>
             </div>
           </CardHeader>
@@ -145,7 +144,8 @@ export default function LaudosIndexPage({ loaderData }: Route.ComponentProps) {
                 <Terminal className="h-4 w-4" />
                 <AlertTitle>Erro ao Carregar</AlertTitle>
                 <AlertDescription>
-                  Não foi possível buscar a lista de laudos. Tente recarregar a página.
+                  Não foi possível buscar a lista de laudos. Tente recarregar a
+                  página.
                 </AlertDescription>
               </Alert>
             )}
@@ -178,13 +178,30 @@ export default function LaudosIndexPage({ loaderData }: Route.ComponentProps) {
                       ? format(new Date(laudo.data_emissao), "dd/MM/yyyy")
                       : "-"}
                   </TableCell>
-                  <TableCell className="capitalize">{laudo.status ?? "-"}</TableCell>
+                  <TableCell className="capitalize">
+                    {laudo.status ?? "-"}
+                  </TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="icon" asChild>
-                      <Link to={`/laudos/${laudo.id}`}>
-                        <Eye className="h-4 w-4" />
-                      </Link>
-                    </Button>
+                    <div className="flex flex-row items-center justify-center mx-auto">
+                      {can("read", "solicitacoes") && (
+                        <Button variant="ghost" size="icon" asChild>
+                          <Link to={`/laudos/${laudo.id}`}>
+                            <Eye className="h-4 w-4" />
+                          </Link>
+                        </Button>
+                      )}
+                      {can("delete", "solicitacoes") && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            console.log("deletando solicitacoes...");
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               )}
@@ -195,3 +212,4 @@ export default function LaudosIndexPage({ loaderData }: Route.ComponentProps) {
     </section>
   );
 }
+

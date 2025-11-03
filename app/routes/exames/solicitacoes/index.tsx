@@ -8,7 +8,7 @@ import {
 } from "react-router";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Eye, PlusCircle, Search, Terminal } from "lucide-react";
+import { Eye, PlusCircle, Search, Table, Terminal, Trash2 } from "lucide-react";
 
 import { Card, CardContent, CardHeader } from "../../../components/ui/card";
 import {
@@ -19,12 +19,20 @@ import {
 } from "../../../components/ui/table";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
-import { Alert, AlertDescription, AlertTitle } from "../../../components/ui/alert";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "../../../components/ui/alert";
 
 import type { Route } from "./+types";
 import { solicitacaoService } from "~/services/solicitacoes";
 import { PaginatedTable } from "~/components/paginated-table";
 import { useDebounce } from "~/hooks/debounce";
+import { usePermissions } from "~/hooks/use-permissions";
+import useAuth from "~/hooks/useAuth";
+import { Badge } from "~/components/ui/badge";
+import { SolicitacaoStatus } from "~/types/solicitacao";
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const url = new URL(request.url);
@@ -59,6 +67,7 @@ export default function SolicitacoesIndexPage({
   loaderData,
 }: Route.ComponentProps) {
   const navigation = useNavigation();
+  const { can } = usePermissions();
   const submit = useSubmit();
   const [searchParams] = useSearchParams();
 
@@ -101,12 +110,14 @@ export default function SolicitacoesIndexPage({
               Visualize e gerencie as solicitações criadas.
             </p>
           </div>
-          <Button asChild>
-            <Link to="/exames/solicitacoes/criar">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Nova Solicitação
-            </Link>
-          </Button>
+          {can("create", "solicitacoes") && (
+            <Button asChild>
+              <Link to="/exames/solicitacoes/criar">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Nova Solicitação
+              </Link>
+            </Button>
+          )}
         </div>
 
         <Card>
@@ -125,7 +136,8 @@ export default function SolicitacoesIndexPage({
                 />
               </Form>
               <span className="text-sm text-muted-foreground w-full sm:w-auto text-center sm:text-right">
-                {totalResults} {totalResults === 1 ? "solicitação" : "solicitações"}{" "}
+                {totalResults}{" "}
+                {totalResults === 1 ? "solicitação" : "solicitações"}{" "}
                 encontradas
               </span>
             </div>
@@ -137,8 +149,8 @@ export default function SolicitacoesIndexPage({
                 <Terminal className="h-4 w-4" />
                 <AlertTitle>Erro ao Carregar</AlertTitle>
                 <AlertDescription>
-                  Não foi possível buscar a lista de solicitações. Tente recarregar
-                  a página.
+                  Não foi possível buscar a lista de solicitações. Tente
+                  recarregar a página.
                 </AlertDescription>
               </Alert>
             )}
@@ -157,30 +169,68 @@ export default function SolicitacoesIndexPage({
                   <TableRow>
                     <TableHead>Paciente</TableHead>
                     <TableHead>Exame</TableHead>
-                    <TableHead>Prioridade</TableHead>
                     <TableHead>Data</TableHead>
-                    <TableHead>Status</TableHead>
+                    {can("create", "solicitacoes") ? (
+                      <TableHead>Status</TableHead>
+                    ) : (
+                      <TableHead>Código</TableHead>
+                    )}
                     <TableHead className="w-[80px]">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
               }
-            renderRow={(solicitacao: any) => (
+              renderRow={(solicitacao: any) => (
                 <TableRow key={solicitacao.id}>
                   <TableCell className="font-medium">
-                    {solicitacao.paciente?.nome ?? solicitacao.paciente_nome ?? "-"}
+                    {solicitacao.paciente?.nome ??
+                      solicitacao.paciente_nome ??
+                      "-"}
                   </TableCell>
+
                   <TableCell>{solicitacao.nome_exame}</TableCell>
-                  <TableCell className="capitalize">{solicitacao.prioridade}</TableCell>
                   <TableCell>
-                    {format(new Date(solicitacao.data), "dd/MM/yyyy")}
+                    {format(
+                      new Date(solicitacao.data_solicitacao),
+                      "dd/MM/yyyy",
+                    )}
                   </TableCell>
-                  <TableCell className="capitalize">{solicitacao.status}</TableCell>
+                  {can("create", "solicitacoes") ? (
+                    <TableCell>
+                      <Badge
+                        variant={"secondary"}
+                        className={
+                          solicitacao.status === SolicitacaoStatus.enviado
+                            ? "bg-green-300 hover:bg-green-300/80"
+                            : "bg-[#FEF9C3] hover:bg-[#FEF9C3]/80"
+                        }
+                      >
+                        {solicitacao.status.replace("_", " ").toLowerCase()}
+                      </Badge>
+                    </TableCell>
+                  ) : (
+                    <TableCell>{solicitacao.codigo_solicitacao}</TableCell>
+                  )}
                   <TableCell>
-                    <Button variant="ghost" size="icon" asChild>
-                      <Link to={`/exames/solicitacoes/${solicitacao.id}`}>
-                        <Eye className="h-4 w-4" />
-                      </Link>
-                    </Button>
+                    <div className="flex flex-row items-center justify-center mx-auto">
+                      {can("read", "solicitacoes") && (
+                        <Button variant="ghost" size="icon" asChild>
+                          <Link to={`/exames/solicitacoes/${solicitacao.id}`}>
+                            <Eye className="h-4 w-4" />
+                          </Link>
+                        </Button>
+                      )}
+                      {can("delete", "solicitacoes") && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            console.log("deletando solicitacoes...");
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               )}

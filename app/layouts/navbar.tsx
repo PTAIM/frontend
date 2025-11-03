@@ -19,14 +19,14 @@ export default function Navbar() {
       <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link to="/home" className="flex items-center space-x-2">
-            <img src="name_logo2.png" className="w-48 h-10 object-cover" />
+            <img src="./name_logo2.png" className="w-48 h-10 object-cover" />
           </Link>
 
           <div className="flex items-center space-x-4">
             {/* Informações do Perfil */}
             <div className="flex items-center space-x-3">
               <Avatar className="h-10 w-10">
-                <AvatarImage src="" alt="" />
+                <AvatarImage src={user?.avatar ?? ""} alt="" />
                 <AvatarFallback>
                   <User className="h-5 w-5" />
                 </AvatarFallback>

@@ -4,7 +4,7 @@ const step1LaudoSchema = z.object({
   exames: z
     .array(z.number())
     .min(1, "Selecione pelo menos um exame para laudar"),
-  paciente_id: z.string().min(1, "Selecione um paciente"),
+  paciente_id: z.number().min(1),
 });
 
 const step2LaudoSchema = z.object({

@@ -32,11 +32,13 @@ import { createPatientSchema } from "~/schemas/paciente";
 import { pacienteService } from "~/services/pacientes";
 import type { CriarPaciente } from "~/types/paciente";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 type CreatePatientForm = z.infer<typeof createPatientSchema>;
 
 export default function CriarPacientePage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const form = useForm<CreatePatientForm>({
     resolver: zodResolver(createPatientSchema),
     defaultValues: {
@@ -61,6 +63,8 @@ export default function CriarPacientePage() {
 
     try {
       await pacienteService.create(pacienteData as CriarPaciente);
+      await queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+      await queryClient.invalidateQueries({ queryKey: ["pacientes-search"] });
       navigate("/home", { replace: true });
       toast.success("Paciente criado com sucesso!");
     } catch (error) {

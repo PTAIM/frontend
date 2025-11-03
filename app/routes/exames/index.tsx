@@ -8,7 +8,7 @@ import {
 } from "react-router";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Eye, PlusCircle, Search, Terminal } from "lucide-react";
+import { Eye, PlusCircle, Search, Terminal, Trash2 } from "lucide-react";
 
 import { Card, CardContent, CardHeader } from "../../components/ui/card";
 import {
@@ -26,7 +26,7 @@ import { exameService } from "~/services/exames";
 import { PaginatedTable } from "~/components/paginated-table";
 import { useDebounce } from "~/hooks/debounce";
 import type { ExamesParams } from "~/types/exame";
-
+import { usePermissions } from "~/hooks/use-permissions";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -47,7 +47,7 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   };
 
   try {
-    const exames = await exameService.readAll(params); 
+    const exames = await exameService.readAll(params);
     return { data: exames, search, page, limit, error: null };
   } catch (error) {
     const errorMessage = (error as Error).message;
@@ -67,6 +67,7 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
 export default function ExamesIndexPage({ loaderData }: Route.ComponentProps) {
   const navigation = useNavigation();
   const submit = useSubmit();
+  const { can } = usePermissions();
   const [searchParams] = useSearchParams();
   const { data, search, page, limit, error } = loaderData;
 
@@ -110,12 +111,14 @@ export default function ExamesIndexPage({ loaderData }: Route.ComponentProps) {
               Visualize e gerencie os exames cadastrados.
             </p>
           </div>
-          {/* <Button asChild>
-            <Link to="/exames/solicitacoes/criar">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Criar Solicitação de Exame
-            </Link>
-          </Button> */}
+          {can("create", "exames") && (
+            <Button asChild>
+              <Link to="/exames/upload">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Novo Upload de Exame
+              </Link>
+            </Button>
+          )}
         </div>
 
         <Card>
@@ -156,7 +159,7 @@ export default function ExamesIndexPage({ loaderData }: Route.ComponentProps) {
               limit={limit}
               total={data.total}
               onPageChange={handlePageChange}
-              colSpan={7} 
+              colSpan={7}
               tableHeaders={
                 <TableHeader>
                   <TableRow>
@@ -179,25 +182,41 @@ export default function ExamesIndexPage({ loaderData }: Route.ComponentProps) {
                   <TableCell>{exame.paciente_nome || "N/A"}</TableCell>
                   <TableCell>{exame.nome_laboratorio}</TableCell>
                   <TableCell>
-                    {format(
-                      new Date(exame.data_realizacao),
-                      "dd/MM/yyyy"
-                    )}
+                    {format(new Date(exame.data_realizacao), "dd/MM/yyyy")}
                   </TableCell>
                   <TableCell>
                     <Badge
-                      variant={exame.tem_laudo ? "default" : "secondary"}
-                      className={exame.tem_laudo ? "bg-green-500 hover:bg-green-500/80" : "bg-yellow-500 hover:bg-yellow-500/80"}
+                      variant={"secondary"}
+                      className={
+                        exame.tem_laudo
+                          ? "bg-green-300 hover:bg-green-300/80"
+                          : "bg-[#FEF9C3] hover:bg-[#FEF9C3]/80"
+                      }
                     >
                       {exame.tem_laudo ? "Laudado" : "Pendente"}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="icon" asChild>
-                      <Link to={`/exames/resultados/${exame.id}`}>
-                        <Eye className="h-4 w-4" />
-                      </Link>
-                    </Button>
+                    <div className="flex flex-row items-center justify-center mx-auto">
+                      {can("read", "exames") && (
+                        <Button variant="ghost" size="icon" asChild>
+                          <Link to={`/exames/resultados/${exame.id}`}>
+                            <Eye className="h-4 w-4" />
+                          </Link>
+                        </Button>
+                      )}
+                      {can("delete", "exames") && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            console.log("deletando solicitacoes...");
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               )}

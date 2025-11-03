@@ -2,7 +2,6 @@ type LaudoStatus = "RASCUNHO" | "FINALIZADO";
 
 export type CriarLaudo = {
   paciente_id: number;
-  medico_id: number;
   titulo: string;
   descricao: string;
   exames_ids: number[];
