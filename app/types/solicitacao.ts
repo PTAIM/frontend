@@ -6,7 +6,6 @@ type SolicitacaoStatus =
 export type CriarSolicitacao = {
   paciente_id: number;
   nome_exame: string;
-  prioridade: "normal" | "emergencia";
   data: Date;
   hipotese_diagnostica: string;
   detalhes_preparo: string;
