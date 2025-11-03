@@ -55,8 +55,7 @@ export default function Login() {
         {/* Logo e Título */}
         <div className="mb-6 flex flex-col items-center justify-center space-y-2">
           <Link to="/" className="flex items-center space-x-2">
-            <HeartPulse className="h-8 w-8 text-primary" />
-            <span className="text-4xl font-bold">MediScan</span>
+            <img src="name_logo2.png" className="w-72 h-10 object-cover" />
           </Link>
           <p className="text-muted-foreground">Entre na sua conta</p>
         </div>

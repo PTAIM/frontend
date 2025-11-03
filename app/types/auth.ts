@@ -15,6 +15,7 @@ export type CurrentUser = {
   nome: string;
   email: string;
   tipo: UserType;
+  avatar: string;
 };
 
 export type LoginResponse = {

@@ -11,7 +11,7 @@ import type {
 class ExameService {
   async create(data: CriarExame) {
     try {
-      const response = await api.post<Message>("/exames/resultados", data);
+      const response = await api.post<Message>("/resultados", data);
       return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));
@@ -20,7 +20,7 @@ class ExameService {
 
   async readAll(params: ExamesParams) {
     try {
-      const response = await api.get<ExamesData>("/exames/resultados", {
+      const response = await api.get<ExamesData>("/exames", {
         params: params,
       });
       return response.data;
