@@ -16,6 +16,8 @@ import { Stepper } from "~/components/stepper";
 import { Step1Form } from "~/components/laudagem/step1";
 import { Step2Form } from "~/components/laudagem/step2";
 import { mockPacientesData } from "~/lib/mock";
+import { laudoService } from "~/services/laudos";
+import type { CriarLaudo } from "~/types/laudo";
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   try {
@@ -48,7 +50,7 @@ export default function CriarLaudoPage({ loaderData }: Route.ComponentProps) {
     resolver: zodResolver(createLaudoSchema),
     defaultValues: {
       step1: {
-        paciente_id: "",
+        paciente_id: 0,
         exames: [],
       },
       step2: {
@@ -65,8 +67,21 @@ export default function CriarLaudoPage({ loaderData }: Route.ComponentProps) {
       return;
     }
 
-    console.log("Dados finais do formulário:", data);
-    navigate("/home", { replace: true });
+    try {
+      await laudoService.create({
+        paciente_id: data.step1.paciente_id,
+        titulo: data.step2.titulo,
+        descricao: data.step2.descricao,
+        exames_ids: data.step1.exames,
+      } as CriarLaudo);
+      console.log("Dados finais do formulário:", data);
+      toast.success("Laudo criado com sucesso!");
+      navigate("/home", { replace: true });
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error("Erro ao criar o laudo.", { description: error.message });
+      }
+    }
   };
 
   return (

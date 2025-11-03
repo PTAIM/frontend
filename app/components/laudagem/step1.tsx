@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -37,29 +37,45 @@ import { Button } from "../../components/ui/button";
 import { Checkbox } from "../../components/ui/checkbox";
 import { Skeleton } from "../../components/ui/skeleton";
 
-import { Check, ChevronsUpDown, ArrowRight } from "lucide-react";
+import { Check, ChevronsUpDown, ArrowRight, Search, User } from "lucide-react";
 
+import { cpfMask } from "~/lib/utils";
 import { cn } from "~/lib/utils";
-import { FormControl, FormField, FormItem } from "~/components/ui/form";
+import { FormField, FormItem } from "~/components/ui/form";
 import type { CreateLaudoForm } from "~/schemas/laudo";
 import type { PacienteData, PacientesData } from "~/types/paciente";
-import { mockRecentExams } from "~/lib/mock";
-import type { ExamesData } from "~/types/exame";
+import { pacienteService } from "~/services/pacientes";
+import { useDebounce } from "~/hooks/debounce";
+import { exameService } from "~/services/exames";
+
+const usePacientesSearch = (
+  search: string,
+  page: number = 1,
+  limit: number = 20,
+) => {
+  return useQuery({
+    queryKey: ["pacientes-search", search],
+    queryFn: async () => {
+      const data = await pacienteService.readAll({
+        search: search || undefined,
+        page: page,
+        perPage: limit,
+      });
+
+      return data;
+    },
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: false,
+  });
+};
 
 const useExamesPorPaciente = (pacienteId: number | null) => {
   return useQuery({
     queryKey: ["exames-por-paciente", pacienteId],
     queryFn: async () => {
-      if (!pacienteId) return null; // Simulação de API
-      console.log(`Buscando exames para paciente ID: ${pacienteId}`);
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      // Dados mockados
-      return {
-        exames: mockRecentExams,
-        total: 28,
-        page: 1,
-        limit: 4,
-      } as ExamesData;
+      if (!pacienteId) return null;
+      const data = await exameService.readAll({ paciente_id: pacienteId });
+      return data;
     },
     enabled: !!pacienteId,
     staleTime: 1000 * 60 * 5,
@@ -74,6 +90,11 @@ interface Step1FormProps {
 
 export function Step1Form({ pacientes, form, onNextStep }: Step1FormProps) {
   const [openPopover, setOpenPopover] = useState(false);
+  const [localSearch, setLocalSearch] = useState("");
+  const debouncedSearch = useDebounce(localSearch, 500);
+  const [selectedPaciente, setSelectedPaciente] = useState<PacienteData | null>(
+    null,
+  );
 
   const selectedPacienteId = form.watch("step1.paciente_id");
   const {
@@ -83,6 +104,25 @@ export function Step1Form({ pacientes, form, onNextStep }: Step1FormProps) {
   } = useExamesPorPaciente(
     selectedPacienteId ? Number(selectedPacienteId) : null,
   );
+
+  const {
+    data: pacientesResult,
+    isLoading: isLoadingPacientes,
+    isError: isErrorPacientes,
+  } = usePacientesSearch(debouncedSearch);
+
+  const handleSelectPaciente = (paciente: PacienteData) => {
+    form.setValue("step1.paciente_id", paciente.id);
+    form.setValue("step1.exames", []); // Reseta exames
+    setSelectedPaciente(paciente);
+    setLocalSearch(""); // Limpa a busca
+  };
+
+  const handleChangePaciente = () => {
+    form.setValue("step1.paciente_id", 0);
+    form.setValue("step1.exames", []);
+    setSelectedPaciente(null);
+  };
 
   const exames = data?.exames ?? [];
 
@@ -106,68 +146,97 @@ export function Step1Form({ pacientes, form, onNextStep }: Step1FormProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Select de Paciente */}
-        <FormField
-          control={form.control}
-          name="step1.paciente_id"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <Popover open={openPopover} onOpenChange={setOpenPopover}>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      className={cn(
-                        "w-full max-w-md justify-between",
-                        !field.value && "text-muted-foreground",
-                      )}
-                    >
-                      {field.value
-                        ? pacientes.find((p) => p.id === Number(field.value))
-                            ?.nome
-                        : "Selecione um paciente"}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                  <Command>
-                    <CommandInput placeholder="Buscar paciente..." />
-                    <CommandEmpty>Nenhum paciente encontrado.</CommandEmpty>
-                    <CommandGroup>
-                      {pacientes.map((paciente) => (
-                        <CommandItem
-                          value={paciente.nome}
-                          key={paciente.id}
-                          onSelect={() => {
-                            form.setValue(
-                              "step1.paciente_id",
-                              String(paciente.id),
-                            );
-                            form.setValue("step1.exames", []); // Reseta exames
-                            setOpenPopover(false);
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              Number(field.value) === paciente.id
-                                ? "opacity-100"
-                                : "opacity-0",
-                            )}
-                          />
-                          {paciente.nome}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-            </FormItem>
-          )}
-        />
+        <div className="space-y-4">
+          <label className="text-sm font-medium flex items-center">
+            <User className="mr-2 h-4 w-4" />
+            Selecionar Paciente
+          </label>
 
+          {selectedPacienteId ? (
+            <div className="flex items-center justify-between rounded-md border border-input bg-background p-4">
+              <div>
+                <p className="font-medium">{selectedPaciente?.nome}</p>
+                <p className="text-sm text-muted-foreground">
+                  {cpfMask(selectedPaciente?.cpf ?? "")}
+                </p>
+
+                <p className="text-sm text-muted-foreground">
+                  Paciente selecionado
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleChangePaciente}
+              >
+                Alterar
+              </Button>
+            </div>
+          ) : (
+            <Popover open={openPopover} onOpenChange={setOpenPopover}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  className="w-full max-w-md justify-between"
+                >
+                  Buscar por nome ou CPF...
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                <Command shouldFilter={false}>
+                  <CommandInput
+                    placeholder="Buscar por nome ou CPF..."
+                    value={localSearch}
+                    onValueChange={setLocalSearch}
+                  />
+                  <CommandEmpty>
+                    {isLoadingPacientes
+                      ? "Buscando..."
+                      : "Nenhum paciente encontrado."}
+                  </CommandEmpty>
+                  {isErrorPacientes && (
+                    <p className="p-4 text-center text-sm text-red-600">
+                      Erro ao buscar.
+                    </p>
+                  )}
+                  {pacientesResult && pacientesResult.pacientes.length > 0 && (
+                    <CommandGroup>
+                      {pacientesResult.pacientes.map(
+                        (paciente: PacienteData) => (
+                          <CommandItem
+                            key={paciente.id}
+                            value={paciente.nome}
+                            onSelect={() => {
+                              handleSelectPaciente(paciente);
+                              setOpenPopover(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                selectedPacienteId === paciente.id
+                                  ? "opacity-100"
+                                  : "opacity-0",
+                              )}
+                            />
+                            <div>
+                              <p className="font-medium">{paciente.nome}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {cpfMask(paciente.cpf)}
+                              </p>
+                            </div>
+                          </CommandItem>
+                        ),
+                      )}
+                    </CommandGroup>
+                  )}
+                </Command>
+              </PopoverContent>
+            </Popover>
+          )}
+        </div>
         {/* Tabela de Exames */}
         <FormField
           control={form.control}

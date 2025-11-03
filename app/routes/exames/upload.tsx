@@ -1,23 +1,35 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Upload, Info, X, FileText, CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { z } from 'zod';
-import { Button } from '~/components/ui/button';
-import { Input } from '~/components/ui/input';
-import { Label } from '~/components/ui/label';
-import { Textarea } from '~/components/ui/textarea';
-import { Card, CardContent, CardDescription } from '~/components/ui/card';
-import { Alert, AlertDescription } from '~/components/ui/alert';
-import { Calendar } from '~/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
-import { toast } from 'sonner';
-import type { Route } from './+types/upload';
-import { uploadExamSchema } from '~/schemas/exame';
-import { exameService } from '~/services/exames';
-import type { CriarExame } from '~/types/exame';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Upload,
+  Info,
+  X,
+  FileText,
+  CalendarIcon,
+  InfoIcon,
+} from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { z } from "zod";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import { Textarea } from "~/components/ui/textarea";
+import { Card, CardContent, CardDescription } from "~/components/ui/card";
+import { Alert, AlertDescription } from "~/components/ui/alert";
+import { Calendar } from "~/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+import { toast } from "sonner";
+import type { Route } from "./+types/upload";
+import { uploadExamSchema } from "~/schemas/exame";
+import { exameService } from "~/services/exames";
+import type { CriarExame } from "~/types/exame";
+import { useNavigate } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -28,8 +40,62 @@ export function meta({}: Route.MetaArgs) {
 
 type ExamFormData = z.infer<typeof uploadExamSchema>;
 
+function InstructionCard() {
+  return (
+    <Card className="shadow-lg mb-8">
+      <CardContent>
+        <h2 className="text-lg font-bold text-gray-900 mb-4">Como usar:</h2>
+        <ol className="space-y-3">
+          <li className="flex gap-3">
+            <span className="shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+              1
+            </span>
+            <span className="text-gray-900">
+              Digite o código único fornecido pelo médico
+            </span>
+          </li>
+          <li className="flex gap-3">
+            <span className="shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+              2
+            </span>
+            <span className="text-gray-900">
+              Clique em "Validar" para verificar se o código está correto
+            </span>
+          </li>
+          <li className="flex gap-3">
+            <span className="shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+              3
+            </span>
+            <span className="text-gray-900">
+              Preencha o nome do laboratório e a data de realização
+            </span>
+          </li>
+          <li className="flex gap-3">
+            <span className="shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+              4
+            </span>
+            <span className="text-gray-900">
+              Faça upload do arquivo do exame
+            </span>
+          </li>
+          <li className="flex gap-3">
+            <span className="shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
+              5
+            </span>
+            <span className="text-gray-900">
+              Clique em "Enviar Exame" para finalizar
+            </span>
+          </li>
+        </ol>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function ExamUpload() {
+  const navigate = useNavigate();
   const [file, setFile] = useState<File | null>(null);
+  const [showInstruction, setShowInstructions] = useState<boolean>(false);
 
   const {
     register,
@@ -42,22 +108,13 @@ export default function ExamUpload() {
     resolver: zodResolver(uploadExamSchema),
   });
 
-  const examDate = watch('data_realizacao');
-
-  const handleValidate = () => {
-    const code = watch('codigo_solicitacao');
-    if (code?.trim()) {
-      toast.info(`Validando código: ${code}`);
-    } else {
-      toast.error('Digite um código para validar');
-    }
-  };
+  const examDate = watch("data_realizacao");
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       setFile(selectedFile);
-      setValue('arquivo', selectedFile, { shouldValidate: true });
+      setValue("arquivo", selectedFile, { shouldValidate: true });
     }
   };
 
@@ -70,75 +127,56 @@ export default function ExamUpload() {
       arquivo: data.arquivo,
     };
 
-    exameService.create(formData)
+    exameService
+      .create(formData)
       .then(() => {
-      toast.success(`Exame ${data.codigo_solicitacao} enviado com sucesso!`);
-    })
+        toast.success(`Exame ${data.codigo_solicitacao} enviado com sucesso!`);
+        navigate("/home", { replace: true });
+      })
       .catch((error: Error) => {
-      toast.error('Erro ao enviar exame.', {
-        description: error.message,
+        toast.error("Erro ao enviar exame.", {
+          description: error.message,
+        });
       });
-    });
-    
+
     reset();
     setFile(null);
   };
 
   return (
-    <div className="min-h-screen">
-      <main className="max-w-4xl mx-auto sm:px-6 lg:px-8">
-        <Card className="shadow-lg mb-8">
-          <CardContent>
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Como usar:</h2>
-            <ol className="space-y-3">
-              <li className="flex gap-3">
-                <span className="shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
-                  1
-                </span>
-                <span className="text-gray-900">
-                  Digite o código único fornecido pelo médico
-                </span>
-              </li>
-              <li className="flex gap-3">
-                <span className="shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
-                  2
-                </span>
-                <span className="text-gray-900">
-                  Clique em "Validar" para verificar se o código está correto
-                </span>
-              </li>
-              <li className="flex gap-3">
-                <span className="shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
-                  3
-                </span>
-                <span className="text-gray-900">
-                  Preencha o nome do laboratório e a data de realização
-                </span>
-              </li>
-              <li className="flex gap-3">
-                <span className="shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
-                  4
-                </span>
-                <span className="text-gray-900">
-                  Faça upload do arquivo do exame
-                </span>
-              </li>
-              <li className="flex gap-3">
-                <span className="shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
-                  5
-                </span>
-                <span className="text-gray-900">
-                  Clique em "Enviar Exame" para finalizar
-                </span>
-              </li>
-            </ol>
-          </CardContent>
-        </Card>
+    <section>
+      <div className="container mx-auto max-w-4xl py-8 space-y-6">
+        {/* Cabeçalho */}
+        <div className="flex justify-between items-center gap-4">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">
+              Enviar Novo Exame
+            </h2>
+            <p className="text-muted-foreground">
+              Preencha os dados e anexe o arquivo do exame.
+            </p>
+          </div>
+          <Button
+            variant={"outline"}
+            size="icon-lg"
+            type="button"
+            className="rounded-full"
+            onClick={() => setShowInstructions(!showInstruction)}
+          >
+            <InfoIcon></InfoIcon>
+          </Button>
+        </div>
+
+        {showInstruction && <InstructionCard />}
+        {/* Formulário */}
         <Card className="shadow-lg">
           <CardContent className="pt-6">
             <div className="space-y-6">
               <div>
-                <Label htmlFor="codigo_solicitacao" className="text-base font-semibold">
+                <Label
+                  htmlFor="codigo_solicitacao"
+                  className="text-base font-semibold"
+                >
                   Código do Exame
                 </Label>
                 <CardDescription className="mt-1 mb-3">
@@ -147,25 +185,23 @@ export default function ExamUpload() {
                 <div className="flex gap-3">
                   <Input
                     id="codigo_solicitacao"
-                    {...register('codigo_solicitacao')}
-                    placeholder="Ex: EX-2024-001"
-                    className="flex-1"
+                    {...register("codigo_solicitacao")}
+                    placeholder="Ex: LZ6Y-ombd9"
+                    className="flex-1 p-4"
                   />
-                  <Button 
-                    type="button"
-                    onClick={handleValidate}
-                    className="bg-blue-500 hover:bg-blue-600"
-                  >
-                    Validar
-                  </Button>
                 </div>
                 {errors.codigo_solicitacao && (
-                  <p className="text-sm text-red-600 mt-1">{errors.codigo_solicitacao.message}</p>
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.codigo_solicitacao.message}
+                  </p>
                 )}
               </div>
 
               <div>
-                <Label htmlFor="nome_laboratorio" className="text-base font-semibold">
+                <Label
+                  htmlFor="nome_laboratorio"
+                  className="text-base font-semibold"
+                >
                   Nome do Laboratório
                 </Label>
                 <CardDescription className="mt-1 mb-3">
@@ -173,11 +209,13 @@ export default function ExamUpload() {
                 </CardDescription>
                 <Input
                   id="nome_laboratorio"
-                  {...register('nome_laboratorio')}
+                  {...register("nome_laboratorio")}
                   placeholder="Ex: Laboratório São Lucas"
                 />
                 {errors.nome_laboratorio && (
-                  <p className="text-sm text-red-600 mt-1">{errors.nome_laboratorio.message}</p>
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.nome_laboratorio.message}
+                  </p>
                 )}
               </div>
 
@@ -190,31 +228,45 @@ export default function ExamUpload() {
                 </CardDescription>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="w-full max-w-3xs justify-start text-left font-normal"
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {examDate ? format(examDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR }) : 'Selecione a data'}
+                      {examDate
+                        ? format(examDate, "PPP", {
+                            locale: ptBR,
+                          })
+                        : "Selecione a data"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
                       selected={examDate}
-                      onSelect={(date) => setValue('data_realizacao', date!, { shouldValidate: true })}
+                      captionLayout="dropdown"
+                      onSelect={(date) =>
+                        setValue("data_realizacao", date!, {
+                          shouldValidate: true,
+                        })
+                      }
                       locale={ptBR}
                       initialFocus
                     />
                   </PopoverContent>
                 </Popover>
                 {errors.data_realizacao && (
-                  <p className="text-sm text-red-600 mt-1">{errors.data_realizacao.message}</p>
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.data_realizacao.message}
+                  </p>
                 )}
               </div>
 
               <div>
-                <Label htmlFor="observacoes" className="text-base font-semibold">
+                <Label
+                  htmlFor="observacoes"
+                  className="text-base font-semibold"
+                >
                   Observações
                 </Label>
                 <CardDescription className="mt-1 mb-3">
@@ -222,7 +274,7 @@ export default function ExamUpload() {
                 </CardDescription>
                 <Textarea
                   id="observacoes"
-                  {...register('observacoes')}
+                  {...register("observacoes")}
                   placeholder="Ex: Paciente em jejum, exame realizado pela manhã..."
                   className="min-h-[100px]"
                 />
@@ -232,7 +284,7 @@ export default function ExamUpload() {
                 <Label className="text-base font-semibold mb-3 block">
                   Arquivo do Exame
                 </Label>
-                
+
                 {!file ? (
                   <div className="border-2 border-dashed rounded-xl p-12 text-center border-gray-300">
                     <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -264,7 +316,9 @@ export default function ExamUpload() {
                       <div className="flex items-center gap-3">
                         <FileText className="w-8 h-8 text-blue-500" />
                         <div>
-                          <p className="text-sm font-medium text-gray-900">{file.name}</p>
+                          <p className="text-sm font-medium text-gray-900">
+                            {file.name}
+                          </p>
                           <p className="text-xs text-gray-500">
                             {(file.size / 1024 / 1024).toFixed(2)} MB
                           </p>
@@ -275,7 +329,7 @@ export default function ExamUpload() {
                         size="sm"
                         onClick={() => {
                           setFile(null);
-                          setValue('arquivo', null as any);
+                          setValue("arquivo", null as any);
                         }}
                         className="h-8 w-8 p-0"
                       >
@@ -285,18 +339,24 @@ export default function ExamUpload() {
                   </div>
                 )}
                 {errors.arquivo && (
-                  <p className="text-sm text-red-600 mt-1">{errors.arquivo.message}</p>
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.arquivo.message}
+                  </p>
                 )}
               </div>
 
               <Alert className="bg-blue-50 border-blue-200">
                 <Info className="h-5 w-5 text-blue-600" />
                 <AlertDescription>
-                  <p className="font-semibold text-blue-900 mb-2">Importante:</p>
+                  <p className="font-semibold text-blue-900 mb-2">
+                    Importante:
+                  </p>
                   <ul className="space-y-1 text-sm text-blue-800">
                     <li>Certifique-se de que o código do exame está correto</li>
                     <li>O arquivo deve estar legível e completo</li>
-                    <li>O médico será notificado automaticamente após o envio</li>
+                    <li>
+                      O médico será notificado automaticamente após o envio
+                    </li>
                   </ul>
                 </AlertDescription>
               </Alert>
@@ -307,12 +367,12 @@ export default function ExamUpload() {
                 className="w-full bg-gray-700 hover:bg-gray-800 h-12 disabled:opacity-50"
               >
                 <Upload className="w-5 h-5 mr-2" />
-                {isSubmitting ? 'Enviando...' : 'Enviar Exame'}
+                {isSubmitting ? "Enviando..." : "Enviar Exame"}
               </Button>
             </div>
           </CardContent>
         </Card>
-      </main>
-    </div>
+      </div>
+    </section>
   );
 }
