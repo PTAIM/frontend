@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import {
+  useQuery,
+  keepPreviousData,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { pacienteService } from "~/services/pacientes";
 import useAuth from "~/hooks/useAuth";
 import {
@@ -66,6 +70,9 @@ const usePacientesSearch = (
   return useQuery({
     queryKey: ["pacientes-search", search],
     queryFn: async () => {
+      if (search.trim().length == 0) {
+        return { pacientes: [], total: 0, page: 0, limit: 0 };
+      }
       const data = await pacienteService.readAll({
         search: search || undefined,
         page: page,
@@ -82,6 +89,7 @@ const usePacientesSearch = (
 export default function SolicitacaoExame() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [openPopover, setOpenPopover] = useState(false);
   const [localSearch, setLocalSearch] = useState("");
   const debouncedSearch = useDebounce(localSearch, 500);
@@ -139,6 +147,8 @@ export default function SolicitacaoExame() {
         detalhes_preparo: values.detalhes_preparo ?? "",
       };
       await solicitacaoService.create(formData);
+
+      await queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
       toast.success("Solicitação de exame enviada com sucesso!");
       reset();
       navigate("/home", { replace: true });

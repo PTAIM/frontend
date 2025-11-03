@@ -18,6 +18,7 @@ import { Step2Form } from "~/components/laudagem/step2";
 import { mockPacientesData } from "~/lib/mock";
 import { laudoService } from "~/services/laudos";
 import type { CriarLaudo } from "~/types/laudo";
+import { useQueryClient } from "@tanstack/react-query";
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   try {
@@ -41,6 +42,7 @@ const steps = [
 
 export default function CriarLaudoPage({ loaderData }: Route.ComponentProps) {
   const { pacientes, error } = loaderData;
+  const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(1);
   const navigate = useNavigate();
 
@@ -75,6 +77,8 @@ export default function CriarLaudoPage({ loaderData }: Route.ComponentProps) {
         exames_ids: data.step1.exames,
       } as CriarLaudo);
       console.log("Dados finais do formulário:", data);
+
+      await queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
       toast.success("Laudo criado com sucesso!");
       navigate("/home", { replace: true });
     } catch (error) {

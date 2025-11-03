@@ -56,6 +56,10 @@ const usePacientesSearch = (
   return useQuery({
     queryKey: ["pacientes-search", search],
     queryFn: async () => {
+      if (search.trim().length == 0) {
+        return { pacientes: [], total: 0, page: 0, limit: 0 };
+      }
+
       const data = await pacienteService.readAll({
         search: search || undefined,
         page: page,
@@ -78,7 +82,7 @@ const useExamesPorPaciente = (pacienteId: number | null) => {
       return data;
     },
     enabled: !!pacienteId,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
   });
 };
 
@@ -194,7 +198,7 @@ export function Step1Form({ pacientes, form, onNextStep }: Step1FormProps) {
                   <CommandEmpty>
                     {isLoadingPacientes
                       ? "Buscando..."
-                      : "Nenhum paciente encontrado."}
+                      : "Busque por um paciente"}
                   </CommandEmpty>
                   {isErrorPacientes && (
                     <p className="p-4 text-center text-sm text-red-600">

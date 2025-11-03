@@ -30,6 +30,7 @@ import { uploadExamSchema } from "~/schemas/exame";
 import { exameService } from "~/services/exames";
 import type { CriarExame } from "~/types/exame";
 import { useNavigate } from "react-router";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -94,6 +95,7 @@ function InstructionCard() {
 
 export default function ExamUpload() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [file, setFile] = useState<File | null>(null);
   const [showInstruction, setShowInstructions] = useState<boolean>(false);
 
@@ -127,17 +129,18 @@ export default function ExamUpload() {
       arquivo: data.arquivo,
     };
 
-    exameService
-      .create(formData)
-      .then(() => {
-        toast.success(`Exame ${data.codigo_solicitacao} enviado com sucesso!`);
-        navigate("/home", { replace: true });
-      })
-      .catch((error: Error) => {
+    try {
+      await exameService.create(formData);
+      await queryClient.invalidateQueries({ queryKey: ["exames-recentes"] });
+      toast.success(`Exame ${data.codigo_solicitacao} enviado com sucesso!`);
+      navigate("/home", { replace: true });
+    } catch (error) {
+      if (error instanceof Error) {
         toast.error("Erro ao enviar exame.", {
           description: error.message,
         });
-      });
+      }
+    }
 
     reset();
     setFile(null);
