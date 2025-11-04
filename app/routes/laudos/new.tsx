@@ -93,7 +93,9 @@ export default function CriarLaudoPage({ loaderData }: Route.ComponentProps) {
       <div className="container mx-auto py-8 space-y-6">
         {/* Cabeçalho */}
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Criar Laudos</h2>
+          <h2 className="text-3xl font-bold tracking-tight">
+            Criar Novo Laudo
+          </h2>
           <p className="text-muted-foreground">
             Siga as etapas para criar um novo laudo.
           </p>

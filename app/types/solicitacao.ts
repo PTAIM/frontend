@@ -27,11 +27,15 @@ export type SolicitacaoData = {
   codigo_solicitacao: string;
   paciente_id: number;
   paciente_nome: string;
+  paciente_cpf: string;
   medico_id: number;
   medico_nome: string;
+  medico_crm: string;
   nome_exame: string;
   status: SolicitacaoStatus;
   data_solicitacao: string;
+  hipotese_diagnostica: string;
+  detalhes_preparo: string;
 };
 
 export type SolicitacoesData = {

@@ -8,12 +8,12 @@ export type ResumoData = {
 };
 
 export type ChartData = {
-  mes: string;
+  data_ponto: string;
   total: number;
 };
 
 export type DashboardData = {
   resumo: ResumoData;
-  solicitacoes_por_mes: ChartData[];
-  laudos_por_mes: ChartData[];
+  solicitacoes_por_agrupamento: ChartData[];
+  laudos_por_agrupamento: ChartData[];
 };
