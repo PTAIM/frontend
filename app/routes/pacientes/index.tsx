@@ -176,7 +176,7 @@ export default function PacientesIndexPage({
                     {format(new Date(paciente.data_nascimento), "dd/MM/yyyy")}
                   </TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="icon" asChild>
+                    <Button variant="ghost" size="icon" asChild type="button">
                       <Link to={`/pacientes/${paciente.id}`}>
                         <Eye className="h-4 w-4" />
                       </Link>

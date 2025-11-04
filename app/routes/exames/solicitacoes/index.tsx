@@ -8,7 +8,7 @@ import {
 } from "react-router";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Eye, PlusCircle, Search, Table, Terminal, Trash2 } from "lucide-react";
+import { Eye, PlusCircle, Search, Terminal, Trash2 } from "lucide-react";
 
 import { Card, CardContent, CardHeader } from "../../../components/ui/card";
 import {
@@ -30,24 +30,40 @@ import { solicitacaoService } from "~/services/solicitacoes";
 import { PaginatedTable } from "~/components/paginated-table";
 import { useDebounce } from "~/hooks/debounce";
 import { usePermissions } from "~/hooks/use-permissions";
-import useAuth from "~/hooks/useAuth";
 import { Badge } from "~/components/ui/badge";
 import { SolicitacaoStatus } from "~/types/solicitacao";
+
+import { FilterBar, type FilterState } from "~/components/filter-bar";
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const url = new URL(request.url);
   const search = url.searchParams.get("search") || "";
   const page = Number(url.searchParams.get("page")) || 1;
   const limit = Number(url.searchParams.get("limit")) || 10;
+  const status =
+    (url.searchParams.get("status") as SolicitacaoStatus) || undefined;
+  const data_inicio = url.searchParams.get("data_inicio") || "";
+  const data_fim = url.searchParams.get("data_fim") || "";
 
   try {
     const solicitacoes = await solicitacaoService.readAll({
       page,
       limit,
       search,
+      data_inicio,
+      data_fim,
+      status,
     });
-    // Espera-se shape semelhante a { solicitacoes, total, page, limit }
-    return { data: solicitacoes, search, page, limit, error: null };
+    return {
+      data: solicitacoes,
+      search,
+      status,
+      data_inicio,
+      data_fim,
+      page,
+      limit,
+      error: null,
+    };
   } catch (error) {
     const errorMessage = (error as Error).message;
     toast.error("Erro ao buscar solicitações.", {
@@ -58,6 +74,9 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
       search,
       page,
       limit,
+      data_inicio,
+      data_fim,
+      status,
       error: errorMessage,
     };
   }
@@ -71,23 +90,46 @@ export default function SolicitacoesIndexPage({
   const submit = useSubmit();
   const [searchParams] = useSearchParams();
 
-  const { data, search, page, limit, error } = loaderData;
+  const { data, search, page, limit, data_inicio, data_fim, status, error } =
+    loaderData;
 
-  const [searchValue, setSearchValue] = useState(search || "");
-  const debouncedSearch = useDebounce(searchValue, 500);
+  const [filters, setFilters] = useState<FilterState>({
+    search: search,
+    status: status,
+    data_inicio: data_inicio,
+    data_fim: data_fim,
+  });
+  const debouncedFilters = useDebounce(filters, 500);
   const searching = navigation.state === "loading";
 
   useEffect(() => {
-    const currentSearch = searchParams.get("search") || "";
-    if (currentSearch === debouncedSearch) return;
-
+    const currentParams = new URLSearchParams(searchParams);
     const newParams = new URLSearchParams(searchParams);
-    newParams.set("page", "1");
-    if (debouncedSearch) newParams.set("search", debouncedSearch);
-    else newParams.delete("search");
+    newParams.set("page", "1"); // Sempre reseta para a página 1 ao filtrar
 
-    submit(newParams, { replace: true });
-  }, [debouncedSearch, submit, searchParams]);
+    let hasChanged = false;
+
+    const updateParam = (key: string, value: string) => {
+      const currentValue = currentParams.get(key) || "";
+      if (currentValue !== value) {
+        hasChanged = true;
+        if (value) {
+          newParams.set(key, value);
+        } else {
+          newParams.delete(key);
+        }
+      }
+    };
+
+    updateParam("search", debouncedFilters.search ?? "");
+    updateParam("status", debouncedFilters.status ?? "");
+    updateParam("data_inicio", debouncedFilters.data_inicio ?? "");
+    updateParam("data_fim", debouncedFilters.data_fim ?? "");
+
+    if (hasChanged) {
+      submit(newParams, { replace: true });
+    }
+  }, [debouncedFilters, submit, searchParams]);
 
   const handlePageChange = (newPage: number) => {
     const newParams = new URLSearchParams(searchParams);
@@ -96,6 +138,12 @@ export default function SolicitacoesIndexPage({
   };
 
   const totalResults = data?.total || 0;
+
+  const statusOptions = [
+    { value: SolicitacaoStatus.aguardando, label: "Aguardando" },
+    { value: SolicitacaoStatus.enviado, label: "Enviado" },
+    { value: SolicitacaoStatus.cancelado, label: "Cancelado" },
+  ];
 
   return (
     <section>
@@ -107,7 +155,7 @@ export default function SolicitacoesIndexPage({
               Solicitações de Exame
             </h2>
             <p className="text-muted-foreground">
-              Visualize e gerencie as solicitações criadas.
+              Visualize e gerencie as solicitações.
             </p>
           </div>
           {can("create", "solicitacoes") && (
@@ -131,10 +179,23 @@ export default function SolicitacoesIndexPage({
                   className="pl-8"
                   name="search"
                   type="search"
-                  value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
+                  value={filters.search}
+                  onChange={(e) =>
+                    setFilters((prev) => ({ ...prev, search: e.target.value }))
+                  }
                 />
               </Form>
+
+              <FilterBar
+                filters={filters}
+                setFilters={setFilters}
+                config={{
+                  showStatus: true,
+                  showDateRange: true,
+                }}
+                statusOptions={statusOptions}
+              />
+
               <span className="text-sm text-muted-foreground w-full sm:w-auto text-center sm:text-right">
                 {totalResults}{" "}
                 {totalResults === 1 ? "solicitação" : "solicitações"}{" "}
