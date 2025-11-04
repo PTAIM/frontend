@@ -1,6 +1,7 @@
 /* [MUDANÇA] Import da nova fonte "Source Sans 3" */
 @import url("https://fonts.googleapis.com/css2?family=Source+Sans+3:opsz,wght@6..12,400;6..12,700;6..12,800&display=swap");
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
