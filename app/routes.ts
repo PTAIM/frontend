@@ -20,11 +20,13 @@ export default [
       ...prefix("pacientes", [
         index("routes/pacientes/index.tsx"),
         route("criar", "routes/pacientes/new.tsx"),
+        route(":id", "routes/pacientes/details.tsx"),
       ]),
       // Exames (solicitacoes/index, solicitacoes/criar solicitacoes/:id )
       ...prefix("exames", [
         index("routes/exames/index.tsx"),
         route("upload", "routes/exames/upload.tsx"),
+        route(":id", "routes/exames/details.tsx"),
         ...prefix("solicitacoes", [
           index("routes/exames/solicitacoes/index.tsx"),
           route(":id", "routes/exames/solicitacoes/details.tsx"),
@@ -36,6 +38,7 @@ export default [
         index("routes/laudos/index.tsx"),
         route(":id", "routes/laudos/details.tsx"),
         route("criar", "routes/laudos/new.tsx"),
+        route("atualizar/:id", "routes/laudos/update.tsx"),
       ]),
     ]),
   ]),

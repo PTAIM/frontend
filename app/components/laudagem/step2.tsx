@@ -117,6 +117,13 @@ const MarkdownEditor = ({
       spellChecker: false,
       placeholder: "Descreva os achados detalhadamente...",
       status: false,
+      previewClass: [
+        "prose",
+        "bg-background",
+        "prose-sm",
+        "dark:prose-invert",
+        "p-4",
+      ],
       toolbar: [
         "bold",
         "italic",

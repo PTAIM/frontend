@@ -6,9 +6,8 @@ export type CriarPaciente = {
   telefone: string;
   sumario_saude?: {
     alergias?: string;
-    medicamentos_uso?: string;
-    condicoes_preexistentes?: string;
-    historico_familiar?: string;
+    medicacoes?: string;
+    historico_doencas?: string;
   };
 };
 
@@ -18,9 +17,8 @@ export type AtualizarPaciente = {
   telefone?: string;
   sumario_saude?: {
     alergias?: string;
-    medicamentos_uso?: string;
-    condicoes_preexistentes?: string;
-    historico_familiar?: string;
+    medicacoes?: string;
+    historico_doencas?: string;
   };
 };
 
@@ -48,6 +46,7 @@ export type PacientesData = {
 
 export type PacienteDetalhes = {
   id: number;
+  avatar: string;
   nome: string;
   email: string;
   cpf: string;
@@ -56,8 +55,7 @@ export type PacienteDetalhes = {
   endereco: string;
   sumario_saude: {
     alergias: string;
-    medicamentos_uso: string;
-    condicoes_preexistentes: string;
-    historico_familiar: string;
+    medicacoes: string;
+    historico_doencas: string;
   };
 };

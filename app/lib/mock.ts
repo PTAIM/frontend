@@ -1,7 +1,7 @@
 import type { ChartData, ResumoData } from "~/types/dashboard";
 import type { ExameData } from "~/types/exame";
 import type { PacientesData } from "~/types/paciente";
-import type { SolicitacaoData } from "~/types/solicitacao";
+import { SolicitacaoStatus, type SolicitacaoData } from "~/types/solicitacao";
 
 export const mockSolicitacoes: SolicitacaoData[] = [
   {
@@ -12,7 +12,11 @@ export const mockSolicitacoes: SolicitacaoData[] = [
     medico_id: 1,
     medico_nome: "Dr. João Silva",
     nome_exame: "Ressonância Magnética",
-    status: "RESULTADO_ENVIADO",
+    paciente_cpf: "123.456.789-00",
+    medico_crm: "123456/SP",
+    hipotese_diagnostica: "Nenhuma",
+    detalhes_preparo: "Jejum de 8h",
+    status: SolicitacaoStatus.aguardando,
     data_solicitacao: new Date("2025-10-24T10:00:00Z").toISOString(),
   },
   {
@@ -23,7 +27,11 @@ export const mockSolicitacoes: SolicitacaoData[] = [
     medico_id: 2,
     medico_nome: "Dra. Ana Costa",
     nome_exame: "Tomografia",
-    status: "AGUARDANDO_RESULTADO",
+    paciente_cpf: "123.456.789-00",
+    medico_crm: "123456/SP",
+    hipotese_diagnostica: "Nenhuma",
+    detalhes_preparo: "Jejum de 8h",
+    status: SolicitacaoStatus.aguardando,
     data_solicitacao: new Date("2025-10-22T09:00:00Z").toISOString(),
   },
   {
@@ -34,7 +42,11 @@ export const mockSolicitacoes: SolicitacaoData[] = [
     medico_id: 1,
     medico_nome: "Dr. João Silva",
     nome_exame: "Raio-X",
-    status: "CANCELADO",
+    paciente_cpf: "123.456.789-00",
+    medico_crm: "123456/SP",
+    hipotese_diagnostica: "Nenhuma",
+    detalhes_preparo: "Jejum de 8h",
+    status: SolicitacaoStatus.cancelado,
     data_solicitacao: new Date("2025-10-20T15:00:00Z").toISOString(),
   },
 ];
@@ -47,7 +59,7 @@ export const mockRecentExams: ExameData[] = [
     paciente_id: 201,
     paciente_nome: "Maria Silva",
     nome_exame: "Ressonância Magnética",
-    data_realizacao: new Date("2025-10-24T14:30:00Z").toISOString(),
+    data_realizacao: new Date("2025-11-04T14:30:00Z").toISOString(),
     nome_laboratorio: "Clínica Imagem",
     tem_laudo: true,
   },
@@ -58,7 +70,7 @@ export const mockRecentExams: ExameData[] = [
     paciente_id: 202,
     paciente_nome: "João Santos",
     nome_exame: "Tomografia",
-    data_realizacao: new Date("2025-10-23T10:00:00Z").toISOString(),
+    data_realizacao: new Date("2025-11-03T10:00:00Z").toISOString(),
     nome_laboratorio: "Clínica Imagem",
     tem_laudo: false,
   },
@@ -69,7 +81,7 @@ export const mockRecentExams: ExameData[] = [
     paciente_id: 203,
     paciente_nome: "Ana Costa",
     nome_exame: "Raio-X",
-    data_realizacao: new Date("2025-10-23T09:15:00Z").toISOString(),
+    data_realizacao: new Date("2025-11-03T09:15:00Z").toISOString(),
     nome_laboratorio: "Clínica Imagem",
     tem_laudo: true,
   },
@@ -82,18 +94,34 @@ export const mock_resumo: ResumoData = {
   total_pacientes: 67,
 };
 
-export const mock_solicitacoes_por_mes: ChartData[] = [
-  { mes: "Jul", total: 35 },
-  { mes: "Ago", total: 42 },
-  { mes: "Set", total: 58 },
-  { mes: "Out", total: 40 },
+export const mock_solicitacoes_agrupadas: ChartData[] = [
+  { data_ponto: "2024-12", total: 50 },
+  { data_ponto: "2025-01", total: 40 },
+  { data_ponto: "2025-02", total: 18 },
+  { data_ponto: "2025-03", total: 22 },
+  { data_ponto: "2025-04", total: 29 },
+  { data_ponto: "2025-05", total: 26 },
+  { data_ponto: "2025-06", total: 34 },
+  { data_ponto: "2025-07", total: 21 },
+  { data_ponto: "2025-08", total: 46 },
+  { data_ponto: "2025-09", total: 34 },
+  { data_ponto: "2025-10", total: 38 },
+  { data_ponto: "2025-11", total: 28 },
 ];
 
-export const mock_laudos_por_mes: ChartData[] = [
-  { mes: "Jul", total: 30 },
-  { mes: "Ago", total: 38 },
-  { mes: "Set", total: 51 },
-  { mes: "Out", total: 35 },
+export const mock_laudos_agrupados: ChartData[] = [
+  { data_ponto: "2024-12", total: 14 },
+  { data_ponto: "2025-01", total: 18 },
+  { data_ponto: "2025-02", total: 37 },
+  { data_ponto: "2025-03", total: 9 },
+  { data_ponto: "2025-04", total: 31 },
+  { data_ponto: "2025-05", total: 40 },
+  { data_ponto: "2025-06", total: 20 },
+  { data_ponto: "2025-07", total: 40 },
+  { data_ponto: "2025-08", total: 46 },
+  { data_ponto: "2025-09", total: 45 },
+  { data_ponto: "2025-10", total: 20 },
+  { data_ponto: "2025-11", total: 50 },
 ];
 
 export const mockPacientesData: PacientesData = {

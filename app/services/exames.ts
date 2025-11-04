@@ -6,6 +6,7 @@ import type {
   CriarExame,
   ExamesParams,
   ExamesData,
+  ExameDetalhes,
 } from "~/types/exame";
 
 class ExameService {
@@ -31,9 +32,7 @@ class ExameService {
 
   async read(exameId: number) {
     try {
-      const response = await api.get<ExameData>(
-        `/exames/resultados/${exameId}`,
-      );
+      const response = await api.get<ExameDetalhes>(`/exames/${exameId}`);
       return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));
@@ -42,9 +41,7 @@ class ExameService {
 
   async delete(exameId: number) {
     try {
-      const response = await api.delete<Message>(
-        `/exames/resultados/${exameId}`,
-      );
+      const response = await api.delete<Message>(`/exames/${exameId}`);
       return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));

@@ -27,6 +27,7 @@ import { PaginatedTable } from "~/components/paginated-table";
 import { useDebounce } from "~/hooks/debounce";
 import type { ExamesParams } from "~/types/exame";
 import { usePermissions } from "~/hooks/use-permissions";
+import { FilterBar, type FilterState } from "~/components/filter-bar";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -40,15 +41,27 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const search = url.searchParams.get("search") || "";
   const page = Number(url.searchParams.get("page")) || 1;
   const limit = Number(url.searchParams.get("limit")) || 10;
+  const data_inicio = url.searchParams.get("data_inicio") || "";
+  const data_fim = url.searchParams.get("data_fim") || "";
 
   const params: ExamesParams = {
     page: page,
     limit: limit,
+    data_inicio: data_inicio,
+    data_fim: data_fim,
   };
 
   try {
     const exames = await exameService.readAll(params);
-    return { data: exames, search, page, limit, error: null };
+    return {
+      data: exames,
+      search,
+      data_inicio,
+      data_fim,
+      page,
+      limit,
+      error: null,
+    };
   } catch (error) {
     const errorMessage = (error as Error).message;
     toast.error("Erro ao buscar exames.", {
@@ -57,6 +70,8 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
     return {
       data: { exames: [], total: 0, page: 1, limit: 10 },
       search,
+      data_inicio,
+      data_fim,
       page,
       limit,
       error: errorMessage,
@@ -69,29 +84,44 @@ export default function ExamesIndexPage({ loaderData }: Route.ComponentProps) {
   const submit = useSubmit();
   const { can } = usePermissions();
   const [searchParams] = useSearchParams();
-  const { data, search, page, limit, error } = loaderData;
+  const { data, search, data_inicio, data_fim, page, limit, error } =
+    loaderData;
 
-  const [searchValue, setSearchValue] = useState(search || "");
-  const debouncedSearch = useDebounce(searchValue, 500);
-  const searching = navigation.state == "loading";
+  const [filters, setFilters] = useState<FilterState>({
+    search: search,
+    data_inicio: data_inicio,
+    data_fim: data_fim,
+  });
+  const debouncedFilters = useDebounce(filters, 500);
+  const searching = navigation.state === "loading";
 
   useEffect(() => {
-    const currentSearch = searchParams.get("search") || "";
-
-    if (currentSearch === debouncedSearch) {
-      return;
-    }
-
+    const currentParams = new URLSearchParams(searchParams);
     const newParams = new URLSearchParams(searchParams);
-    newParams.set("page", "1");
-    if (debouncedSearch) {
-      newParams.set("search", debouncedSearch);
-    } else {
-      newParams.delete("search");
-    }
+    newParams.set("page", "1"); // Sempre reseta para a página 1 ao filtrar
 
-    submit(newParams, { replace: true });
-  }, [debouncedSearch, submit, searchParams]);
+    let hasChanged = false;
+
+    const updateParam = (key: string, value: string) => {
+      const currentValue = currentParams.get(key) || "";
+      if (currentValue !== value) {
+        hasChanged = true;
+        if (value) {
+          newParams.set(key, value);
+        } else {
+          newParams.delete(key);
+        }
+      }
+    };
+
+    updateParam("search", debouncedFilters.search ?? "");
+    updateParam("data_inicio", debouncedFilters.data_inicio ?? "");
+    updateParam("data_fim", debouncedFilters.data_fim ?? "");
+
+    if (hasChanged) {
+      submit(newParams, { replace: true });
+    }
+  }, [debouncedFilters, submit, searchParams]);
 
   const handlePageChange = (newPage: number) => {
     const newParams = new URLSearchParams(searchParams);
@@ -108,7 +138,7 @@ export default function ExamesIndexPage({ loaderData }: Route.ComponentProps) {
           <div>
             <h2 className="text-3xl font-bold tracking-tight">Exames</h2>
             <p className="text-muted-foreground">
-              Visualize e gerencie os exames cadastrados.
+              Visualize e gerencie os exames.
             </p>
           </div>
           {can("create", "exames") && (
@@ -131,13 +161,25 @@ export default function ExamesIndexPage({ loaderData }: Route.ComponentProps) {
                   className="pl-8"
                   name="search"
                   type="search"
-                  value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
+                  value={filters.search}
+                  onChange={(e) =>
+                    setFilters((prev) => ({ ...prev, search: e.target.value }))
+                  }
                 />
               </Form>
+
+              <FilterBar
+                filters={filters}
+                setFilters={setFilters}
+                config={{
+                  showDateRange: true,
+                }}
+              />
+
               <span className="text-sm text-muted-foreground w-full sm:w-auto text-center sm:text-right">
-                {totalResults} {totalResults === 1 ? "exame" : "exames"}{" "}
-                encontrados
+                {totalResults}{" "}
+                {totalResults === 1 ? "solicitação" : "solicitações"}{" "}
+                encontradas
               </span>
             </div>
           </CardHeader>
@@ -200,7 +242,7 @@ export default function ExamesIndexPage({ loaderData }: Route.ComponentProps) {
                     <div className="flex flex-row items-center justify-center mx-auto">
                       {can("read", "exames") && (
                         <Button variant="ghost" size="icon" asChild>
-                          <Link to={`/exames/resultados/${exame.id}`}>
+                          <Link to={`/exames/${exame.id}`}>
                             <Eye className="h-4 w-4" />
                           </Link>
                         </Button>
