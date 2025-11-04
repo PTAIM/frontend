@@ -1,4 +1,7 @@
-type LaudoStatus = "RASCUNHO" | "FINALIZADO";
+export enum LaudoStatus {
+  rascunho = "RASCUNHO",
+  finalizado = "FINALIZADO",
+}
 
 export type CriarLaudo = {
   paciente_id: number;

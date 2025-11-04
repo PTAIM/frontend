@@ -34,3 +34,23 @@ export type ExamesData = {
   page: number;
   limit: number;
 };
+
+export type ExameDetalhes = {
+  id: number;
+  solicitacao_id: number;
+  codigo_solicitacao: string;
+  paciente_id: number;
+  paciente_nome: string;
+  paciente_cpf: string;
+  medico_id: number;
+  medico_nome: string;
+  medico_crm: string;
+  nome_exame: string;
+  data_realizacao: string; // ISO string
+  data_upload: string; // ISO string
+  nome_laboratorio: string;
+  nome_arquivo: string;
+  url_arquivo: string;
+  observacoes: string;
+  tem_laudo: boolean;
+};
