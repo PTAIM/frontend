@@ -28,6 +28,15 @@ class LaudoService {
     }
   }
 
+  async updateStatus(id: number) {
+    try {
+      const response = await api.post<Message>(`/laudos/${id}/finalizar`);
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
+
   async readAll(params: LaudosParams) {
     try {
       const response = await api.get<LaudosData>("/laudos", {

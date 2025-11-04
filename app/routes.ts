@@ -38,6 +38,7 @@ export default [
         index("routes/laudos/index.tsx"),
         route(":id", "routes/laudos/details.tsx"),
         route("criar", "routes/laudos/new.tsx"),
+        route("atualizar/:id", "routes/laudos/update.tsx"),
       ]),
     ]),
   ]),
