@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import React, { createContext, useEffect, useState } from "react";
 import { authService } from "~/services/auth";
 import type { LoginCredentials, CurrentUser } from "~/types/auth";
@@ -15,6 +16,7 @@ export const authContext = createContext<AuthContext | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<CurrentUser | null>(null);
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
@@ -30,6 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } catch (error) {
           setUser(null);
           localStorage.removeItem("token");
+          queryClient.clear();
         } finally {
           setIsLoading(false);
         }

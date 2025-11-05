@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { HeartPulse, LogOut, User } from "lucide-react";
 import { Link, Outlet, useNavigate } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -6,10 +7,12 @@ import useAuth from "~/hooks/useAuth";
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user, logout } = useAuth();
 
   const handleLogout = async () => {
     await logout();
+    queryClient.clear();
     navigate("/login");
   };
 
