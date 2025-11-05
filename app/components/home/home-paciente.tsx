@@ -54,7 +54,7 @@ export function useSolicitacoesRecentes() {
     queryKey: ["solicitacoes-recentes"],
     queryFn: async () => {
       const data = await solicitacaoService.readAll({ page: 1, limit: 3 });
-      return data.solicitacoes;
+      return data.items;
     },
     staleTime: 1000 * 60 * 2, // 2 minutos
     refetchInterval: 1000 * 60 * 5, // Refaz a cada 5 minutos

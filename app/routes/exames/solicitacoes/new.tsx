@@ -71,12 +71,12 @@ const usePacientesSearch = (
     queryKey: ["pacientes-search", search],
     queryFn: async () => {
       if (search.trim().length == 0) {
-        return { pacientes: [], total: 0, page: 0, limit: 0 };
+        return { items: [], total: 0, page: 0, limit: 0 };
       }
       const data = await pacienteService.readAll({
         search: search || undefined,
         page: page,
-        perPage: limit,
+        limit: limit,
       });
 
       return data;
@@ -232,9 +232,9 @@ export default function SolicitacaoExame() {
                           </p>
                         )}
                         {pacientesResult &&
-                          pacientesResult.pacientes.length > 0 && (
+                          pacientesResult.items.length > 0 && (
                             <CommandGroup>
-                              {pacientesResult.pacientes.map(
+                              {pacientesResult.items.map(
                                 (paciente: PacienteData) => (
                                   <CommandItem
                                     key={paciente.id}

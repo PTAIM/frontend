@@ -57,13 +57,13 @@ const usePacientesSearch = (
     queryKey: ["pacientes-search", search],
     queryFn: async () => {
       if (search.trim().length == 0) {
-        return { pacientes: [], total: 0, page: 0, limit: 0 };
+        return { items: [], total: 0, page: 0, limit: 0 };
       }
 
       const data = await pacienteService.readAll({
         search: search || undefined,
         page: page,
-        perPage: limit,
+        limit: limit,
       });
 
       return data;
@@ -128,7 +128,7 @@ export function Step1Form({ pacientes, form, onNextStep }: Step1FormProps) {
     setSelectedPaciente(null);
   };
 
-  const exames = data?.exames ?? [];
+  const exames = data?.items ?? [];
 
   const handleNext = async () => {
     const isValid = await form.trigger("step1");
@@ -205,35 +205,33 @@ export function Step1Form({ pacientes, form, onNextStep }: Step1FormProps) {
                       Erro ao buscar.
                     </p>
                   )}
-                  {pacientesResult && pacientesResult.pacientes.length > 0 && (
+                  {pacientesResult && pacientesResult.items.length > 0 && (
                     <CommandGroup>
-                      {pacientesResult.pacientes.map(
-                        (paciente: PacienteData) => (
-                          <CommandItem
-                            key={paciente.id}
-                            value={paciente.nome}
-                            onSelect={() => {
-                              handleSelectPaciente(paciente);
-                              setOpenPopover(false);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                selectedPacienteId === paciente.id
-                                  ? "opacity-100"
-                                  : "opacity-0",
-                              )}
-                            />
-                            <div>
-                              <p className="font-medium">{paciente.nome}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {cpfMask(paciente.cpf)}
-                              </p>
-                            </div>
-                          </CommandItem>
-                        ),
-                      )}
+                      {pacientesResult.items.map((paciente: PacienteData) => (
+                        <CommandItem
+                          key={paciente.id}
+                          value={paciente.nome}
+                          onSelect={() => {
+                            handleSelectPaciente(paciente);
+                            setOpenPopover(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              selectedPacienteId === paciente.id
+                                ? "opacity-100"
+                                : "opacity-0",
+                            )}
+                          />
+                          <div>
+                            <p className="font-medium">{paciente.nome}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {cpfMask(paciente.cpf)}
+                            </p>
+                          </div>
+                        </CommandItem>
+                      ))}
                     </CommandGroup>
                   )}
                 </Command>

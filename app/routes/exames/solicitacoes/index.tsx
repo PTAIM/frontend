@@ -70,7 +70,7 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
       description: errorMessage,
     });
     return {
-      data: { solicitacoes: [], total: 0, page: 1, limit: 10 },
+      data: { items: [], total: 0, page: 1, limit: 10 },
       search,
       page,
       limit,
@@ -185,22 +185,23 @@ export default function SolicitacoesIndexPage({
                   }
                 />
               </Form>
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <FilterBar
+                  filters={filters}
+                  setFilters={setFilters}
+                  config={{
+                    showStatus: can("update", "solicitacoes"),
+                    showDateRange: true,
+                  }}
+                  statusOptions={statusOptions}
+                />
 
-              <FilterBar
-                filters={filters}
-                setFilters={setFilters}
-                config={{
-                  showStatus: true,
-                  showDateRange: true,
-                }}
-                statusOptions={statusOptions}
-              />
-
-              <span className="text-sm text-muted-foreground w-full sm:w-auto text-center sm:text-right">
-                {totalResults}{" "}
-                {totalResults === 1 ? "solicitação" : "solicitações"}{" "}
-                encontradas
-              </span>
+                <span className="text-sm text-muted-foreground w-full sm:w-auto text-center sm:text-right">
+                  {totalResults}{" "}
+                  {totalResults === 1 ? "solicitação" : "solicitações"}{" "}
+                  encontradas
+                </span>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -218,7 +219,7 @@ export default function SolicitacoesIndexPage({
 
             {/* Tabela Paginada */}
             <PaginatedTable
-              data={data.solicitacoes}
+              data={data.items}
               isLoading={searching}
               page={page}
               limit={limit}

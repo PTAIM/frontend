@@ -34,9 +34,9 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const limit = Number(url.searchParams.get("limit")) || 10;
 
   try {
-    const pacientes = await pacienteService.readAll({
+    const pacientes = await pacienteService.readFiltered({
       page: page,
-      perPage: limit,
+      limit: limit,
       search: search,
     });
     return { data: pacientes, search, page, limit, error: null };
@@ -46,7 +46,7 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
       description: errorMessage,
     });
     return {
-      data: { pacientes: [], total: 0, page: 1, limit: 10 },
+      data: { items: [], total: 0, page: 1, limit: 10 },
       search,
       page,
       limit,
@@ -147,7 +147,7 @@ export default function PacientesIndexPage({
             )}
             {/* Tabela Paginada */}
             <PaginatedTable
-              data={data.pacientes}
+              data={data.items}
               isLoading={searching}
               page={page}
               limit={limit}

@@ -28,9 +28,26 @@ class PacienteService {
     }
   }
 
-  async readAll(params?: { search?: string; page?: number; perPage?: number }) {
+  async readFiltered(params?: {
+    search: string;
+    page?: number;
+    limit?: number;
+  }) {
     try {
-      const response = await api.get<PacientesData>("/pacientes", { params });
+      const response = await api.get<PacientesData>("/pacientes", {
+        params,
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
+
+  async readAll(params?: { search?: string; page?: number; limit?: number }) {
+    try {
+      const response = await api.get<PacientesData>("/pacientes/all", {
+        params,
+      });
       return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));

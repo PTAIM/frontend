@@ -68,7 +68,7 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
       description: errorMessage,
     });
     return {
-      data: { exames: [], total: 0, page: 1, limit: 10 },
+      data: { items: [], total: 0, page: 1, limit: 10 },
       search,
       data_inicio,
       data_fim,
@@ -167,20 +167,21 @@ export default function ExamesIndexPage({ loaderData }: Route.ComponentProps) {
                   }
                 />
               </Form>
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <FilterBar
+                  filters={filters}
+                  setFilters={setFilters}
+                  config={{
+                    showDateRange: true,
+                  }}
+                />
 
-              <FilterBar
-                filters={filters}
-                setFilters={setFilters}
-                config={{
-                  showDateRange: true,
-                }}
-              />
-
-              <span className="text-sm text-muted-foreground w-full sm:w-auto text-center sm:text-right">
-                {totalResults}{" "}
-                {totalResults === 1 ? "solicitação" : "solicitações"}{" "}
-                encontradas
-              </span>
+                <span className="text-sm text-muted-foreground w-full sm:w-auto text-center sm:text-right">
+                  {totalResults}{" "}
+                  {totalResults === 1 ? "solicitação" : "solicitações"}{" "}
+                  encontradas
+                </span>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -195,7 +196,7 @@ export default function ExamesIndexPage({ loaderData }: Route.ComponentProps) {
               </Alert>
             )}
             <PaginatedTable
-              data={data.exames}
+              data={data.items}
               isLoading={searching}
               page={page}
               limit={limit}

@@ -39,7 +39,7 @@ export type SolicitacaoData = {
 };
 
 export type SolicitacoesData = {
-  solicitacoes: SolicitacaoData[];
+  items: SolicitacaoData[];
   total: number;
   page: number;
   limit: number;

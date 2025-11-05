@@ -304,7 +304,7 @@ export function useDashboardStats({
       ]);
       return {
         ...dashboardResponse.data,
-        exames_recentes: examesResponse.exames,
+        exames_recentes: examesResponse.items,
       };
     },
     staleTime: 1000 * 60 * 2,

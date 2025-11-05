@@ -75,7 +75,7 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
       description: errorMessage,
     });
     return {
-      data: { laudos: [], total: 0 },
+      data: { items: [], total: 0 },
       search,
       page,
       limit,
@@ -92,7 +92,6 @@ export default function LaudosIndexPage({ loaderData }: Route.ComponentProps) {
   const submit = useSubmit();
   const [searchParams] = useSearchParams();
   const { can } = usePermissions();
-  const fetcher = useFetcher();
 
   const { data, search, status, data_inicio, data_fim, page, limit, error } =
     loaderData;
@@ -183,12 +182,14 @@ export default function LaudosIndexPage({ loaderData }: Route.ComponentProps) {
               Visualize e gerencie os laudos.
             </p>
           </div>
-          <Button asChild>
-            <Link to="/laudos/criar">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Criar Laudo
-            </Link>
-          </Button>
+          {can("create", "laudos") && (
+            <Button asChild>
+              <Link to="/laudos/criar">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Criar Laudo
+              </Link>
+            </Button>
+          )}
         </div>
 
         <Card>
@@ -208,21 +209,23 @@ export default function LaudosIndexPage({ loaderData }: Route.ComponentProps) {
                 />
               </Form>
 
-              <FilterBar
-                filters={filters}
-                setFilters={setFilters}
-                config={{
-                  showStatus: true,
-                  showDateRange: true,
-                }}
-                statusOptions={statusOptions}
-              />
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <FilterBar
+                  filters={filters}
+                  setFilters={setFilters}
+                  config={{
+                    showStatus: can("update", "laudos"),
+                    showDateRange: true,
+                  }}
+                  statusOptions={statusOptions}
+                />
 
-              <span className="text-sm text-muted-foreground w-full sm:w-auto text-center sm:text-right">
-                {totalResults}{" "}
-                {totalResults === 1 ? "solicitação" : "solicitações"}{" "}
-                encontradas
-              </span>
+                <span className="text-sm text-muted-foreground w-full sm:w-auto text-center sm:text-right">
+                  {totalResults}{" "}
+                  {totalResults === 1 ? "solicitação" : "solicitações"}{" "}
+                  encontradas
+                </span>
+              </div>
             </div>
           </CardHeader>
 
@@ -239,7 +242,7 @@ export default function LaudosIndexPage({ loaderData }: Route.ComponentProps) {
             )}
 
             <PaginatedTable
-              data={data?.laudos || []}
+              data={data?.items || []}
               isLoading={searching}
               page={page}
               limit={limit}

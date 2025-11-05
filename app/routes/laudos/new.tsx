@@ -23,7 +23,7 @@ import { useQueryClient } from "@tanstack/react-query";
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   try {
     const pacientes = await pacienteService.readAll({});
-    return { pacientes: mockPacientesData, error: null };
+    return { pacientes: pacientes, error: null };
   } catch (error) {
     const errorMessage = (error as Error).message;
     toast.error("Erro ao carregar dados.", { description: errorMessage });
@@ -118,7 +118,7 @@ export default function CriarLaudoPage({ loaderData }: Route.ComponentProps) {
           <form onSubmit={form.handleSubmit(onSubmit)}>
             {currentStep === 1 && (
               <Step1Form
-                pacientes={pacientes.pacientes}
+                pacientes={pacientes.items}
                 form={form}
                 onNextStep={() => setCurrentStep(2)}
               />

@@ -38,7 +38,7 @@ export type PacienteData = {
 };
 
 export type PacientesData = {
-  pacientes: PacienteData[];
+  items: PacienteData[];
   total: number;
   page: number;
   limit: number;

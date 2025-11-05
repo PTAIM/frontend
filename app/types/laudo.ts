@@ -40,7 +40,7 @@ export type LaudoData = {
 };
 
 export type LaudosData = {
-  laudos: LaudoData[];
+  items: LaudoData[];
   total: number;
   page: number;
   limit: number;

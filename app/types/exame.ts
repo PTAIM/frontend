@@ -29,7 +29,7 @@ export type ExameData = {
 };
 
 export type ExamesData = {
-  exames: ExameData[];
+  items: ExameData[];
   total: number;
   page: number;
   limit: number;
