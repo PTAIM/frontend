@@ -34,6 +34,7 @@ import {
   ZoomIn,
   Expand,
   X,
+  Loader2,
 } from "lucide-react";
 
 import { FormField, FormItem } from "~/components/ui/form";
@@ -45,6 +46,11 @@ import "easymde/dist/easymde.min.css";
 import { cn } from "~/lib/utils";
 import { exameService } from "~/services/exames";
 import type { ExamesDetalhes } from "~/types/exame";
+import { laudoService } from "~/services/laudos";
+import type {
+  AnalisarImagemRequest,
+  ImageAnalysisResponse,
+} from "~/types/laudo";
 
 const useImagensPorExames = (exameIds: number[]) => {
   return useQuery({
@@ -61,18 +67,33 @@ const useImagensPorExames = (exameIds: number[]) => {
   });
 };
 
-const useAnaliseIA = () => {
-  return useMutation<string, Error, { exameIds: number[] }>({
-    mutationFn: async ({ exameIds }) => {
-      console.log(
-        `Enviando exames IDs ${exameIds.join(", ")} para análise de IA...`,
-      );
-      await new Promise((resolve) => setTimeout(resolve, 2000)); // Simula delay da IA
-      // Resposta mockada
-      return "Análise da IA:\n\n- Detectada leve assimetria no ventrículo esquerdo.\n- Nenhuma anomalia significativa encontrada no tórax.\n- Recomenda-se acompanhamento clínico.";
+const useAnaliseIA = (form: ReturnType<typeof useForm<CreateLaudoForm>>) => {
+  return useMutation<ImageAnalysisResponse, Error, AnalisarImagemRequest>({
+    mutationFn: async (data) => {
+      console.log(`Enviando imagem ${data.nome_arquivo} para análise de IA...`);
+
+      const response = laudoService.analysis(data);
+
+      if (response) {
+        return response;
+      }
+      return {
+        analysis_text:
+          "Análise da IA (Mock):\n\n- Detectada leve assimetria na imagem " +
+          data.nome_arquivo.split("/").pop() +
+          ".\n- Nenhuma anomalia significativa encontrada.\n- Recomenda-se acompanhamento clínico.",
+      };
     },
-    onSuccess: () => {
-      toast.success("Análise de IA concluída com sucesso!");
+    onSuccess: (data) => {
+      const currentValue = form.getValues("step2.descricao") || "";
+      const newValue =
+        currentValue +
+        (currentValue ? "\n\n" : "") + // Adiciona espaço
+        data.analysis_text;
+
+      form.setValue("step2.descricao", newValue, { shouldValidate: true });
+
+      toast.success("Análise de IA concluída e adicionada ao laudo!");
     },
     onError: (error) => {
       toast.error("Erro na Análise de IA.", {
@@ -164,12 +185,18 @@ export function Step2Form({ form, onGoBack }: Step2FormProps) {
     mutate: runAnaliseIA,
     data: analiseResult,
     isPending: isAnalisePending,
-  } = useAnaliseIA();
+  } = useAnaliseIA(form);
 
   const handleRunAnalise = () => {
-    runAnaliseIA({ exameIds: selectedExameIds || [] });
+    if (!selectedMedia || isPdf) {
+      toast.error("Nenhuma imagem selecionada.", {
+        description: "Por favor, selecione uma imagem (não PDF) para analisar.",
+      });
+      return;
+    }
+    // Envia apenas a URL/nome do arquivo selecionado
+    runAnaliseIA({ nome_arquivo: selectedMedia.url_arquivo });
   };
-
   const handleZoom = (direction: "in" | "out") => {
     setZoomLevel((prev) => {
       let newZoom = direction === "in" ? prev + 25 : prev - 25;
@@ -188,6 +215,13 @@ export function Step2Form({ form, onGoBack }: Step2FormProps) {
 
   const closeMediaViewer = () => {
     setSelectedMedia(null);
+  };
+
+  const getAiCardDescription = () => {
+    if (isAnalisePending) return "Analisando, por favor aguarde...";
+    if (!selectedMedia) return "Selecione uma imagem para analisar.";
+    if (isPdf) return "Análise de IA não disponível para arquivos PDF.";
+    return "Clique para analisar a imagem selecionada.";
   };
 
   return (
@@ -259,7 +293,6 @@ export function Step2Form({ form, onGoBack }: Step2FormProps) {
               )}
             </CardContent>
           </Card>
-
           {/* Card de Análise IA */}
           <Card>
             <CardHeader>
@@ -267,9 +300,7 @@ export function Step2Form({ form, onGoBack }: Step2FormProps) {
                 <Wand2 className="mr-2 h-5 w-5" />
                 Análise por IA
               </CardTitle>
-              <CardDescription>
-                Use a IA como assistente para pré-análise.
-              </CardDescription>
+              <CardDescription>{getAiCardDescription()}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <Button
@@ -279,26 +310,24 @@ export function Step2Form({ form, onGoBack }: Step2FormProps) {
                   e.preventDefault();
                   handleRunAnalise();
                 }}
-                disabled={
-                  isAnalisePending || (selectedExameIds || []).length === 0
-                }
+                disabled={isAnalisePending || !selectedMedia || isPdf}
               >
                 {isAnalisePending ? (
-                  "Analisando..."
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
-                  <>
-                    <Brain className="mr-2 h-4 w-4" />
-                    Analisar Imagens
-                  </>
+                  <Brain className="mr-2 h-4 w-4" />
                 )}
+                {isAnalisePending ? "Analisando..." : "Analisar Imagem"}
               </Button>
               <div className="p-4 bg-muted rounded-md min-h-[100px] text-sm text-muted-foreground whitespace-pre-wrap">
                 {isAnalisePending
                   ? "Aguardando resposta da IA..."
-                  : analiseResult || "A análise gerada pela IA aparecerá aqui."}
+                  : // ATUALIZADO: Acessa a propriedade .analysis_text
+                    analiseResult?.analysis_text ||
+                    "A análise gerada pela IA aparecerá aqui."}
               </div>
             </CardContent>
-          </Card>
+          </Card>{" "}
         </div>
 
         {/* Coluna Direita: Formulário do Laudo */}

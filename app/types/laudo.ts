@@ -69,3 +69,11 @@ export type LaudoDetalhes = {
     url_arquivo: string;
   }>;
 };
+
+export type AnalisarImagemRequest = {
+  nome_arquivo: string;
+};
+
+export type ImageAnalysisResponse = {
+  analysis_text: string;
+};

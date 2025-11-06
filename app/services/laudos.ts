@@ -7,6 +7,8 @@ import type {
   LaudosParams,
   LaudoDetalhes,
   LaudosData,
+  AnalisarImagemRequest,
+  ImageAnalysisResponse,
 } from "~/types/laudo";
 
 class LaudoService {
@@ -22,6 +24,18 @@ class LaudoService {
   async update(id: number, data: AtualizarLaudo) {
     try {
       const response = await api.put<Message>(`/laudos/${id}`, data);
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
+
+  async analysis(data: AnalisarImagemRequest) {
+    try {
+      const response = await api.post<ImageAnalysisResponse>(
+        "/ai/analisar_imagem",
+        data,
+      );
       return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));
