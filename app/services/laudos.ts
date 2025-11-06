@@ -33,7 +33,7 @@ class LaudoService {
   async analysis(data: AnalisarImagemRequest) {
     try {
       const response = await api.post<ImageAnalysisResponse>(
-        "/ai/analisar_imagem",
+        "/ia/analisar_imagem",
         data,
       );
       return response.data;
