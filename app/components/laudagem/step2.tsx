@@ -37,6 +37,9 @@ import {
   Loader2,
 } from "lucide-react";
 
+import ReactMarkdown from "react-markdown";
+
+import remarkGfm from "remark-gfm";
 import { FormField, FormItem } from "~/components/ui/form";
 import type { CreateLaudoForm } from "~/schemas/laudo";
 import React, { Suspense, useMemo, useState } from "react";
@@ -67,7 +70,7 @@ const useImagensPorExames = (exameIds: number[]) => {
   });
 };
 
-const useAnaliseIA = (form: ReturnType<typeof useForm<CreateLaudoForm>>) => {
+const useAnaliseIA = () => {
   return useMutation<ImageAnalysisResponse, Error, AnalisarImagemRequest>({
     mutationFn: async (data) => {
       console.log(`Enviando imagem ${data.nome_arquivo} para análise de IA...`);
@@ -85,14 +88,6 @@ const useAnaliseIA = (form: ReturnType<typeof useForm<CreateLaudoForm>>) => {
       };
     },
     onSuccess: (data) => {
-      const currentValue = form.getValues("step2.descricao") || "";
-      const newValue =
-        currentValue +
-        (currentValue ? "\n\n" : "") + // Adiciona espaço
-        data.analysis_text;
-
-      form.setValue("step2.descricao", newValue, { shouldValidate: true });
-
       toast.success("Análise de IA concluída e adicionada ao laudo!");
     },
     onError: (error) => {
@@ -185,7 +180,7 @@ export function Step2Form({ form, onGoBack }: Step2FormProps) {
     mutate: runAnaliseIA,
     data: analiseResult,
     isPending: isAnalisePending,
-  } = useAnaliseIA(form);
+  } = useAnaliseIA();
 
   const handleRunAnalise = () => {
     if (!selectedMedia || isPdf) {
@@ -320,14 +315,16 @@ export function Step2Form({ form, onGoBack }: Step2FormProps) {
                 {isAnalisePending ? "Analisando..." : "Analisar Imagem"}
               </Button>
               <div className="p-4 bg-muted rounded-md min-h-[100px] text-sm text-muted-foreground whitespace-pre-wrap">
-                {isAnalisePending
-                  ? "Aguardando resposta da IA..."
-                  : // ATUALIZADO: Acessa a propriedade .analysis_text
-                    analiseResult?.analysis_text ||
-                    "A análise gerada pela IA aparecerá aqui."}
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {isAnalisePending
+                    ? "Aguardando resposta da IA..."
+                    : // ATUALIZADO: Acessa a propriedade .analysis_text
+                      analiseResult?.analysis_text ||
+                      "A análise gerada pela IA aparecerá aqui."}
+                </ReactMarkdown>
               </div>
             </CardContent>
-          </Card>{" "}
+          </Card>
         </div>
 
         {/* Coluna Direita: Formulário do Laudo */}
