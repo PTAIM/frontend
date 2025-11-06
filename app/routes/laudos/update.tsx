@@ -52,12 +52,9 @@ import { cn } from "~/lib/utils";
 import { laudoService } from "~/services/laudos";
 import type { Route } from "./+types/details";
 import { updateLaudoSchema, type UpdateLaudoForm } from "~/schemas/laudo";
+import { exameService } from "~/services/exames";
+import type { ExamesDetalhes } from "~/types/exame";
 
-interface ImagemExame {
-  id: number;
-  url: string;
-  descricao: string;
-}
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   try {
     const data = await laudoService.read(Number(params.id));
@@ -79,24 +76,9 @@ const useImagensPorExames = (exameIds: number[]) => {
     queryFn: async () => {
       if (exameIds.length === 0) return [];
       console.log(`Buscando imagens para exames IDs: ${exameIds.join(", ")}`);
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      return [
-        {
-          id: 1,
-          url: "https://cdn.pixabay.com/photo/2012/10/26/00/26/computer-tomography-62942_960_720.jpg",
-          descricao: "Exame 101 - Imagem 1",
-        },
-        {
-          id: 2,
-          url: "https://placehold.co/800x600/000000/FFF?text=Imagem+2",
-          descricao: "Exame 101 - Imagem 2",
-        },
-        {
-          id: 3,
-          url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-          descricao: "Exame 102 - Laudo (PDF)",
-        },
-      ];
+
+      const data = await exameService.readByIds({ exame_ids: exameIds });
+      return data;
     },
     enabled: exameIds.length > 0,
     staleTime: Infinity,
@@ -204,7 +186,9 @@ export default function UpdateLaudoPage({ loaderData }: Route.ComponentProps) {
     [laudo],
   );
 
-  const [selectedMedia, setSelectedMedia] = useState<ImagemExame | null>(null);
+  const [selectedMedia, setSelectedMedia] = useState<ExamesDetalhes | null>(
+    null,
+  );
   const [zoomLevel, setZoomLevel] = useState(100); // Zoom em %
 
   const {
@@ -232,9 +216,9 @@ export default function UpdateLaudoPage({ loaderData }: Route.ComponentProps) {
     });
   };
 
-  const isPdf = selectedMedia?.url.endsWith(".pdf");
+  const isPdf = selectedMedia?.url_arquivo.endsWith(".pdf") ?? false;
 
-  const openMediaViewer = (media: ImagemExame) => {
+  const openMediaViewer = (media: ExamesDetalhes) => {
     setZoomLevel(100);
     setSelectedMedia(media);
   };
@@ -266,7 +250,7 @@ export default function UpdateLaudoPage({ loaderData }: Route.ComponentProps) {
           className="mb-4"
           onClick={() => navigate(-1)}
         >
-          <Link to={"#"}>
+          <Link to="/laudos">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Voltar
           </Link>
@@ -341,7 +325,7 @@ export default function UpdateLaudoPage({ loaderData }: Route.ComponentProps) {
                       <Carousel className="w-full">
                         <CarouselContent>
                           {imagens.map((img) => {
-                            const isImgPdf = img.url.endsWith(".pdf");
+                            const isImgPdf = img.url_arquivo.endsWith(".pdf");
                             return (
                               <CarouselItem key={img.id} className="basis-1/2">
                                 <Button
@@ -359,13 +343,13 @@ export default function UpdateLaudoPage({ loaderData }: Route.ComponentProps) {
                                     </div>
                                   ) : (
                                     <img
-                                      src={img.url}
-                                      alt={img.descricao}
+                                      src={img.url_arquivo}
+                                      alt={img.nome_arquivo}
                                       className="w-full h-24 object-cover rounded-t-md"
                                     />
                                   )}
                                   <p className="text-xs text-muted-foreground truncate w-full px-1 pb-1">
-                                    {img.descricao}
+                                    {img.nome_arquivo}
                                   </p>
                                 </Button>
                               </CarouselItem>
@@ -504,9 +488,20 @@ export default function UpdateLaudoPage({ loaderData }: Route.ComponentProps) {
                 {selectedMedia && (
                   <Card>
                     <CardHeader className="flex flex-row items-center justify-between">
-                      <CardTitle className="text-base truncate">
-                        {selectedMedia.descricao}
-                      </CardTitle>
+                      <div className="flex flex-col justify-center items-start gap-2">
+                        <CardTitle className="text-base truncate">
+                          {selectedMedia.nome_arquivo}
+                        </CardTitle>
+                        <p className="text-muted-foreground">
+                          <strong>Observações:</strong>{" "}
+                          {selectedMedia.observacoes || (
+                            <span className="text-sm text-muted-foreground">
+                              Nenhuma informação.
+                            </span>
+                          )}
+                        </p>
+                      </div>
+
                       <Button
                         variant="ghost"
                         size="icon"
@@ -519,15 +514,15 @@ export default function UpdateLaudoPage({ loaderData }: Route.ComponentProps) {
                     <CardContent className="h-[400px] w-full overflow-auto bg-muted/20 rounded-md border">
                       {isPdf ? (
                         <iframe
-                          src={selectedMedia.url}
+                          src={selectedMedia.url_arquivo}
                           className="w-full h-full"
-                          title={selectedMedia.descricao}
+                          title={selectedMedia.nome_arquivo}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center p-4">
                           <img
-                            src={selectedMedia.url}
-                            alt={selectedMedia.descricao}
+                            src={selectedMedia.url_arquivo}
+                            alt={selectedMedia.nome_arquivo}
                             style={{ transform: `scale(${zoomLevel / 100})` }}
                             className="transition-transform duration-150"
                           />

@@ -45,6 +45,7 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const data_fim = url.searchParams.get("data_fim") || "";
 
   const params: ExamesParams = {
+    search: search,
     page: page,
     limit: limit,
     data_inicio: data_inicio,

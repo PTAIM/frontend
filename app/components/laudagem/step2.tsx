@@ -43,12 +43,8 @@ import React, { Suspense, useMemo, useState } from "react";
 const SimpleMDEEditor = React.lazy(() => import("react-simplemde-editor"));
 import "easymde/dist/easymde.min.css";
 import { cn } from "~/lib/utils";
-
-interface ImagemExame {
-  id: number;
-  url: string;
-  descricao: string;
-}
+import { exameService } from "~/services/exames";
+import type { ExamesDetalhes } from "~/types/exame";
 
 const useImagensPorExames = (exameIds: number[]) => {
   return useQuery({
@@ -56,24 +52,9 @@ const useImagensPorExames = (exameIds: number[]) => {
     queryFn: async () => {
       if (exameIds.length === 0) return [];
       console.log(`Buscando imagens para exames IDs: ${exameIds.join(", ")}`);
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      return [
-        {
-          id: 1,
-          url: "https://cdn.pixabay.com/photo/2012/10/26/00/26/computer-tomography-62942_960_720.jpg",
-          descricao: "Exame 101 - Imagem 1",
-        },
-        {
-          id: 2,
-          url: "https://placehold.co/800x600/000000/FFF?text=Imagem+2",
-          descricao: "Exame 101 - Imagem 2",
-        },
-        {
-          id: 3,
-          url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-          descricao: "Exame 102 - Laudo (PDF)",
-        },
-      ];
+
+      const data = await exameService.readByIds({ exame_ids: exameIds });
+      return data;
     },
     enabled: exameIds.length > 0,
     staleTime: Infinity,
@@ -168,7 +149,9 @@ interface Step2FormProps {
 export function Step2Form({ form, onGoBack }: Step2FormProps) {
   const selectedExameIds = form.watch("step1.exames");
 
-  const [selectedMedia, setSelectedMedia] = useState<ImagemExame | null>(null);
+  const [selectedMedia, setSelectedMedia] = useState<ExamesDetalhes | null>(
+    null,
+  );
   const [zoomLevel, setZoomLevel] = useState(100); // Zoom em %
 
   const {
@@ -196,9 +179,9 @@ export function Step2Form({ form, onGoBack }: Step2FormProps) {
     });
   };
 
-  const isPdf = selectedMedia?.url.endsWith(".pdf");
+  const isPdf = selectedMedia?.url_arquivo.endsWith(".pdf");
 
-  const openMediaViewer = (media: ImagemExame) => {
+  const openMediaViewer = (media: ExamesDetalhes) => {
     setZoomLevel(100); // Reseta o zoom
     setSelectedMedia(media);
   };
@@ -236,7 +219,7 @@ export function Step2Form({ form, onGoBack }: Step2FormProps) {
                 <Carousel className="w-full">
                   <CarouselContent>
                     {imagens.map((img) => {
-                      const isImgPdf = img.url.endsWith(".pdf");
+                      const isImgPdf = img.url_arquivo.endsWith(".pdf");
                       return (
                         <CarouselItem key={img.id} className="basis-1/2">
                           <Button
@@ -257,13 +240,13 @@ export function Step2Form({ form, onGoBack }: Step2FormProps) {
                               </div>
                             ) : (
                               <img
-                                src={img.url}
-                                alt={img.descricao}
+                                src={img.url_arquivo}
+                                alt={img.nome_arquivo}
                                 className="w-full h-24 object-cover rounded-t-md"
                               />
                             )}
                             <p className="text-xs text-muted-foreground truncate w-full px-1 pb-1">
-                              {img.descricao}
+                              {img.nome_arquivo}
                             </p>
                           </Button>
                         </CarouselItem>
@@ -386,9 +369,19 @@ export function Step2Form({ form, onGoBack }: Step2FormProps) {
           {selectedMedia && (
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-base truncate">
-                  {selectedMedia.descricao}
-                </CardTitle>
+                <div className="flex flex-col justify-center items-start gap-2">
+                  <CardTitle className="text-base truncate">
+                    {selectedMedia.nome_arquivo}
+                  </CardTitle>
+                  <p className="text-muted-foreground">
+                    <strong>Observações:</strong>{" "}
+                    {selectedMedia.observacoes || (
+                      <span className="text-sm text-muted-foreground">
+                        Nenhuma informação.
+                      </span>
+                    )}
+                  </p>
+                </div>
                 <Button variant="ghost" size="icon" onClick={closeMediaViewer}>
                   <X className="h-4 w-4" />
                 </Button>
@@ -396,15 +389,15 @@ export function Step2Form({ form, onGoBack }: Step2FormProps) {
               <CardContent className="h-[400px] w-full overflow-auto bg-muted/20 rounded-md border">
                 {isPdf ? (
                   <iframe
-                    src={selectedMedia.url}
+                    src={selectedMedia.url_arquivo}
                     className="w-full h-full"
-                    title={selectedMedia.descricao}
+                    title={selectedMedia.nome_arquivo}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center p-4">
                     <img
-                      src={selectedMedia.url}
-                      alt={selectedMedia.descricao}
+                      src={selectedMedia.url_arquivo}
+                      alt={selectedMedia.nome_arquivo}
                       style={{ transform: `scale(${zoomLevel / 100})` }}
                       className="transition-transform duration-150"
                     />

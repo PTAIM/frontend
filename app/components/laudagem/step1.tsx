@@ -60,7 +60,7 @@ const usePacientesSearch = (
         return { items: [], total: 0, page: 0, limit: 0 };
       }
 
-      const data = await pacienteService.readAll({
+      const data = await pacienteService.readFiltered({
         search: search || undefined,
         page: page,
         limit: limit,

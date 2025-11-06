@@ -29,7 +29,7 @@ class PacienteService {
   }
 
   async readFiltered(params?: {
-    search: string;
+    search?: string;
     page?: number;
     limit?: number;
   }) {

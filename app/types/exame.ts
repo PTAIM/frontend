@@ -9,11 +9,16 @@ export type CriarExame = {
 export type ExamesParams = {
   solicitacao_id?: number;
   paciente_id?: number;
+  search?: string;
   medico_id?: number;
   data_inicio?: string;
   data_fim?: string;
   page?: number;
   limit?: number;
+};
+
+export type LerExames = {
+  exame_ids: number[];
 };
 
 export type ExameData = {
@@ -53,4 +58,14 @@ export type ExameDetalhes = {
   url_arquivo: string;
   observacoes: string;
   tem_laudo: boolean;
+};
+
+export type ExamesDetalhes = {
+  id: number;
+  data_realizacao: string; // ISO string
+  data_upload: string; // ISO string
+  nome_laboratorio: string;
+  nome_arquivo: string;
+  url_arquivo: string;
+  observacoes: string;
 };
