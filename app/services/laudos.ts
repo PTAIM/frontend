@@ -70,6 +70,15 @@ class LaudoService {
       throw new Error(handleApiError(error));
     }
   }
+
+  async delete(id: number) {
+    try {
+      const response = await api.delete<Message>(`/laudos/${id}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
 }
 
 export const laudoService = new LaudoService();

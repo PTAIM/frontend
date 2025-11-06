@@ -145,6 +145,30 @@ export default function SolicitacoesIndexPage({
     { value: SolicitacaoStatus.cancelado, label: "Cancelado" },
   ];
 
+  const reloadData = () => {
+    submit(searchParams, { replace: true });
+  };
+
+  async function deletarSolicitacao(solicitacaoId: number) {
+    if (
+      !confirm(
+        "Tem certeza que deseja deletar esta Solicitação? Essa ação não pode ser desfeita e só terá exito se não houver resultado associado a essa solicitação",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await solicitacaoService.delete(solicitacaoId);
+      toast.success("Solicitação deletada com sucesso!");
+      reloadData();
+    } catch (error) {
+      toast.error("Erro ao excluir solicitação", {
+        description: (error as Error).message,
+      });
+    }
+  }
+
   return (
     <section>
       <div className="container mx-auto py-8 space-y-6">
@@ -286,7 +310,7 @@ export default function SolicitacoesIndexPage({
                           variant="ghost"
                           size="icon"
                           onClick={() => {
-                            console.log("deletando solicitacoes...");
+                            deletarSolicitacao(solicitacao.id);
                           }}
                         >
                           <Trash2 className="h-4 w-4 text-red-500" />

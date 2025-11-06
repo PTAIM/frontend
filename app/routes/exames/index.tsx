@@ -130,6 +130,30 @@ export default function ExamesIndexPage({ loaderData }: Route.ComponentProps) {
     submit(newParams, { replace: true });
   };
 
+  const reloadData = () => {
+    submit(searchParams, { replace: true });
+  };
+
+  async function deletarExame(exameId: number) {
+    if (
+      !confirm(
+        "Tem certeza que deseja deletar este exame? Essa ação não pode ser desfeita e só terá exito se não houver laudo associado a esse exame",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await exameService.delete(exameId);
+      toast.success("Exame deletado com sucesso!");
+      reloadData();
+    } catch (error) {
+      toast.error("Erro ao excluir exame", {
+        description: (error as Error).message,
+      });
+    }
+  }
+
   const totalResults = data?.total || 0;
 
   return (
@@ -254,7 +278,7 @@ export default function ExamesIndexPage({ loaderData }: Route.ComponentProps) {
                           variant="ghost"
                           size="icon"
                           onClick={() => {
-                            console.log("deletando solicitacoes...");
+                            deletarExame(exame.id);
                           }}
                         >
                           <Trash2 className="h-4 w-4 text-red-500" />

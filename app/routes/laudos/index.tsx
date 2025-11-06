@@ -148,9 +148,29 @@ export default function LaudosIndexPage({ loaderData }: Route.ComponentProps) {
     }
     try {
       await laudoService.updateStatus(laudoId);
+      toast.success("Laudo deletado com sucesso!");
       reloadData();
     } catch (error) {
       toast.error("Erro ao finalizar laudo", {
+        description: (error as Error).message,
+      });
+    }
+  }
+
+  async function deletarLaudo(laudoId: number) {
+    if (
+      !confirm(
+        "Tem certeza que deseja deletar este laudo? Essa ação não pode ser desfeita.",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await laudoService.delete(laudoId);
+      reloadData();
+    } catch (error) {
+      toast.error("Erro ao excluir laudo", {
         description: (error as Error).message,
       });
     }
@@ -311,17 +331,18 @@ export default function LaudosIndexPage({ loaderData }: Route.ComponentProps) {
                             </Link>
                           </Button>
                         )}
-                      {can("delete", "solicitacoes") && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            console.log("deletando solicitacoes...");
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4 text-red-500" />
-                        </Button>
-                      )}
+                      {can("delete", "solicitacoes") &&
+                        laudo.status === LaudoStatus.rascunho && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              deletarLaudo(laudo.id);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </Button>
+                        )}
                     </div>
                   </TableCell>
                 </TableRow>
